@@ -298,8 +298,8 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         <div class="typing typing-3"></div>
       </div>`;
 
-//const API_URL = "http://127.0.0.1:8000";
-const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev/";
+const API_URL = "http://127.0.0.1:8000";
+//const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev/";
 //Save sesstionId in localstrage and get it
 function get_sesstionId() {
     //IF sesstionId is not exist, create new sesstionId
@@ -464,10 +464,12 @@ class ASKTOWEB_ASSISTANT {
     sclchat() { this.chat.scrollTop = this.chat.scrollHeight - this.chat.clientHeight; }
 
 }
+console.log("AssistantBtn loaded");
 
 //After Website loaded, Create new Div element from text and append it to the body
 document.addEventListener("DOMContentLoaded", function () {
     //append it to the body
+    console.log("AssistantBtn created");
     document.body.innerHTML += ASKTOWEB_ASSISTANT_DOM;
     asktoweb = new ASKTOWEB_ASSISTANT();
 })
@@ -482,7 +484,7 @@ async function FetchAPI(query, aimessage, fn) {
         body: JSON.stringify({
             "question": query,
             "sesstionId": get_sesstionId(),
-            "website": "yourl"
+            "website": "00m"
         })
     }).then(response => {
         if (response.ok) {
