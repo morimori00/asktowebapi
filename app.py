@@ -110,14 +110,14 @@ async def Askme(query,chat_history,website,sesstionId):
     ):  
         if jsonpatch_op.ops[0]["path"] == "/final_output":
             output = jsonpatch_op.ops[0]["value"]
-            print(output.content, flush=True)
+            #print(output.content, flush=True)
             result_dict = {"type":"text","value":output.content}
             yield f"data: {json.dumps(result_dict)}\n\n"
             # {"type":"text","value":"~"}
         if jsonpatch_op.ops[0]["path"] == "/logs/Retriever/final_output":
-            print("\n" + "-" * 30 + "\n")
-            print("Used documents:")
-            print(jsonpatch_op.ops[0]["value"])
+            #print("\n" + "-" * 30 + "\n")
+            #print("Used documents:")
+            #print(jsonpatch_op.ops[0]["value"])
             documents = [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in jsonpatch_op.ops[0]["value"]["documents"]]
             if len(documents) == 0:
                 references = ""
