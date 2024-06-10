@@ -298,7 +298,9 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         <div class="typing typing-3"></div>
       </div>`;
 
-const API_URL = "http://127.0.0.1:8000";
+
+//const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev/";
 //Save sesstionId in localstrage and get it
 function get_sesstionId() {
     //IF sesstionId is not exist, create new sesstionId
