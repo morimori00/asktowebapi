@@ -1,3 +1,5 @@
+
+
 from fastapi import FastAPI
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware # 追加
@@ -14,7 +16,7 @@ app.add_middleware(
 import json
 from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings,ChatOpenAI
-index_name = "test-index"
+index_name = "index"
 embeddings = OpenAIEmbeddings()
 from langchain_core.prompts import ChatPromptTemplate
 import tiktoken
