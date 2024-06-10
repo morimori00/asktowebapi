@@ -86,7 +86,8 @@ def save_chat_history(chat_history, session_id):
     records = table.select().where(table["sesstionId"] == session_id).limit(1)
     if len(records)==0:
         records = [table.create({"sesstionId": session_id})]
-    data=pickle.dump(chat_history)
+    #data=pickle.dump(chat_history)
+    data="testtest"
     records[0]["chat_history"]= data
     records[0].save()
 
@@ -105,7 +106,8 @@ def load_chat_history(session_id):
     if len(records)==0:
         return []
     else:
-        return pickle.load(records[0]["chat_history"])
+        #return pickle.load(records[0]["chat_history"])
+        return []
 
 def printme(input):
     print(input)
