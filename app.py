@@ -131,9 +131,10 @@ async def Askme(query,chat_history,website,sesstionId):
             if len(documents) == 0:
                 references = ""
             else:
-                references = "参照リンク<br>"
+                references = "参照リンク<ol>"
                 for doc in documents:
-                    references += f'<a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a>'
+                    references += f'<li><a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a></li>'
+                references += "</ol>"
             result_dict={"type":"documents","value":references}
             yield f"data: {json.dumps(result_dict)}\n\n"
             # {"type":"documents","value":[{"page_content":"~~","metadata":{"discription":"~","title":"~","source":"https://~"}}]}
@@ -178,4 +179,4 @@ def resethistory(sesstionId: str):
     return {"chat_history": chat_history}
 
 if __name__ == "__main__":
-    uvicorn.run(app)
+    uvicorn.run(app, host='0.0.0.0', port=8000)
