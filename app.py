@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware # 追加
@@ -132,7 +131,11 @@ async def Askme(query,chat_history,website,sesstionId):
                 references = ""
             else:
                 references = "参照リンク<ol>"
+                referenced_links=[]
                 for doc in documents:
+                    if doc["metadata"]["source"] in referenced_links:
+                        continue
+                    referenced_links.append(doc["metadata"]["source"])
                     references += f'<li><a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a></li>'
                 references += "</ol>"
             result_dict={"type":"documents","value":references}
