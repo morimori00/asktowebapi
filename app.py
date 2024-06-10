@@ -1,3 +1,9 @@
+# # 必要モジュールのインポート
+# from dotenv import load_dotenv
+
+# # .envファイルの内容を読み込見込む
+# load_dotenv()
+
 from fastapi import FastAPI
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware # 追加
@@ -63,24 +69,43 @@ qa_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
+from leapcell import Leapcell
+import os
+# Initialize client with the token
+# Get API token from env
+api_token = os.environ.get("LEAPCELL_API_KEY")
+leapclient = Leapcell(api_token)
+table = leapclient.table("morimori/asktoweb", "tbl1800066439163408384")
+
 def save_chat_history(chat_history, session_id):
-    # Save the chat history to a json file
-    with open(f"chat_history_{session_id}.pkl", 'wb') as file:
-        pickle.dump(chat_history, file)
-    print("chat history saved")
-    print(str(chat_history))
+    # # Save the chat history to a json file
+    # with open(f"chat_history_{session_id}.pkl", 'wb') as file:
+    #     pickle.dump(chat_history, file)
+    # print("chat history saved")
+    # print(str(chat_history))
+    records = table.select().where(table["sesstionId"] == session_id).limit(1)
+    if len(records)==0:
+        records = [table.create({"sesstionId": session_id})]
+    data=pickle.dump(chat_history)
+    records[0]["chat_history"]= data
+    records[0].save()
 
 def load_chat_history(session_id):
-    # Load the chat history from a json file
-    # If the file does not exist, create an empty list
-    try:
-        with open(f"chat_history_{session_id}.pkl", 'rb') as file:
-            chat_history = pickle.load(file)
-    except FileNotFoundError:
-        chat_history = []
-    print("chat history loaded")
-    print(chat_history)
-    return chat_history
+    # # Load the chat history from a json file
+    # # If the file does not exist, create an empty list
+    # try:
+    #     with open(f"chat_history_{session_id}.pkl", 'rb') as file:
+    #         chat_history = pickle.load(file)
+    # except FileNotFoundError:
+    #     chat_history = []
+    # print("chat history loaded")
+    # print(chat_history)
+    # return chat_history
+    records = table.select().where(table["sesstionId"] == session_id).limit(1)
+    if len(records)==0:
+        return []
+    else:
+        return pickle.load(records[0]["chat_history"])
 
 def printme(input):
     print(input)
@@ -110,14 +135,14 @@ async def Askme(query,chat_history,website,sesstionId):
     ):  
         if jsonpatch_op.ops[0]["path"] == "/final_output":
             output = jsonpatch_op.ops[0]["value"]
-            #print(output.content, flush=True)
+            print(output.content, flush=True)
             result_dict = {"type":"text","value":output.content}
             yield f"data: {json.dumps(result_dict)}\n\n"
             # {"type":"text","value":"~"}
         if jsonpatch_op.ops[0]["path"] == "/logs/Retriever/final_output":
-            #print("\n" + "-" * 30 + "\n")
-            #print("Used documents:")
-            #print(jsonpatch_op.ops[0]["value"])
+            print("\n" + "-" * 30 + "\n")
+            print("Used documents:")
+            print(jsonpatch_op.ops[0]["value"])
             documents = [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in jsonpatch_op.ops[0]["value"]["documents"]]
             if len(documents) == 0:
                 references = ""
