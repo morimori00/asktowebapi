@@ -167,6 +167,10 @@ class StreamRequest(BaseModel):
 @app.post("/stream")
 def stream(body: StreamRequest):
     query = body.question
+    if len(query)<=3 or len(query)>1000:
+        StreamingResponse("data: {\"type\":\"text\",\"value\":\"Please ask a question with more than 3 characters and less than 1000 characters.\"}\n\n")
+        StreamingResponse("data: {\"end\": true}\n\n")
+        return 
     sesstionId = body.sesstionId
     website=body.website
     chat_history = load_chat_history(sesstionId)
