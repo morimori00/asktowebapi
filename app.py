@@ -4,7 +4,8 @@ from fastapi import FastAPI
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware # 追加
 
-app = FastAPI()
+#app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 # CORSミドルウェアの設定
 app.add_middleware(
     CORSMiddleware,
