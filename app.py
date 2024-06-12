@@ -67,7 +67,6 @@ qa_prompt = ChatPromptTemplate.from_messages(
 )
 
 from supabase import Client, create_client
-import os
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
