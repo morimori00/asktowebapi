@@ -16,7 +16,7 @@ app.add_middleware(
 import json
 from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings,ChatOpenAI
-index_name = "index"
+index_name = "test"
 embeddings = OpenAIEmbeddings()
 from langchain_core.prompts import ChatPromptTemplate
 import tiktoken
@@ -77,8 +77,11 @@ def chat_history_decode(chat_history_list):
     for chat in chat_history_list:
         if chat["type"]=="human":
             chat_history.append(HumanMessage(content=chat["content"]))
-        else:
+        elif chat["type"]=="ai":
             chat_history.append(AIMessage(content=chat["content"]))
+        elif chat["type"]=="references":
+            chat_history.append(AIMessage(content="Here are some references: "+chat["content"]))
+        
     return chat_history
 
 def save_chat_history(chat_history_list, session_id):
@@ -130,23 +133,23 @@ async def Askme(query,chat_history,website,sesstionId):
             print(jsonpatch_op.ops[0]["value"])
             documents = [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in jsonpatch_op.ops[0]["value"]["documents"]]
             if len(documents) == 0:
-                references = ""
+                references = []
             else:
-                references = "参照リンク<ol>"
                 referenced_links=[]
+                references=[]
                 for doc in documents:
                     if doc["metadata"]["source"] in referenced_links:
                         continue
                     referenced_links.append(doc["metadata"]["source"])
-                    references += f'<li><a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a></li>'
-                references += "</ol>"
-            result_dict={"type":"documents","value":references}
-            yield f"data: {json.dumps(result_dict)}\n\n"
+                    reference = f'<a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a>'
+                    result_dict={"type":"documents","value":reference}
+                    references.append(reference)
+                    yield f"data: {json.dumps(result_dict)}\n\n"
             # {"type":"documents","value":[{"page_content":"~~","metadata":{"discription":"~","title":"~","source":"https://~"}}]}
     if references=="":
         chat_history.extend([{"type":"human","content":query},{"type":"ai","content":output.content}])
     else:
-        chat_history.extend([{"type":"human","content":query}, {"type":"ai","content":output.content}, {"type":"ai","content":references}])
+        chat_history.extend([{"type":"human","content":query}, {"type":"ai","content":output.content}, {"type":"references","content":",".join(references)}])
     while len(tokenizer.encode(str(chat_history)))>1000:
             chat_history.pop(0)
     save_chat_history(chat_history, sesstionId)
