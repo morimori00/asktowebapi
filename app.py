@@ -16,6 +16,7 @@ app.add_middleware(
 import json
 from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings,ChatOpenAI
+import os
 index_name = os.environ.get("PINECONE_INDEX")
 embeddings = OpenAIEmbeddings()
 from langchain_core.prompts import ChatPromptTemplate
