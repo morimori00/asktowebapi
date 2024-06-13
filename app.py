@@ -1,5 +1,4 @@
 
-
 from fastapi import FastAPI
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware # 追加
@@ -187,6 +186,8 @@ def gethistory(sesstionId: str):
 
 @app.post("/resethistory")
 def resethistory(sesstionId: str):
+    if load_chat_history(sesstionId)==[]:
+        return {"chat_history": []}
     chat_history = []
     save_chat_history(chat_history, sesstionId)
     return {"chat_history": chat_history}
