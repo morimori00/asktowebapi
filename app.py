@@ -1,3 +1,8 @@
+# 必要モジュールのインポート
+from dotenv import load_dotenv
+
+# .envファイルの内容を読み込見込む
+load_dotenv()
 
 from fastapi import FastAPI
 import uvicorn
@@ -35,7 +40,7 @@ You generate queries for contextual searches within the website that the assista
 Think about what information you need to answer the user's question and generate a query.
 The query should include the content of the user's question, plus at least two sentences guessing the content of the page where the answer is likely to be found.
 Generate only queries, do not write any other context.
-If the user's question can be answered without referring to the website, simply write “null"
+If the latest user input is not a question or request, please write "null".
 """
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
     [
@@ -52,7 +57,10 @@ template = """
         INSTRUCTIONS:
         You are the assistant who answers the questions of the visitors to the website.
         Answer the users QUESTION using the CONTEXT from the websute text above.
-        Keep your answer ground in the facts of the CONTEXT.
+        Keep your answer ground in the facts of the CONTEXT. Do not provide any information that is not supported by the CONTEXT.
+        
+        NOTE:
+        The context provided is only part of the page of the website searched, and the information the user is seeking may be found elsewhere on the page.
 
         CONTEXT:
         {context}
@@ -98,54 +106,69 @@ def load_chat_history(session_id):
     return json.loads(jsondata)
 
 def printme(input):
-    print(input)
+    if input=="null":
+        print(input)
+    else:
+        print(input)
     return input
 
 def format_docs(docs):
+    if docs == []:
+        return "This user's question is one that does not require context for an answer."
     return "\n\n".join(doc.page_content for doc in docs)
 
 tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
-
 async def Askme(query,chat_history,website,sesstionId):
     ct = 0
     output = {}
     vectorstore = PineconeVectorStore(index_name=index_name, embedding=embeddings, namespace=website)
     retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.85,"k":2})
+    def wrapedretriever(query):
+        if(query=="null"):
+            print("No reference needed")
+            return []
+        return retriever.invoke(query)
+    #wrap the retriver.
     rag_chain = (
-    RunnablePassthrough.assign(context=contextualize_q_chain | retriever | format_docs)
+    RunnablePassthrough.assign(context=contextualize_q_chain | printme | wrapedretriever | format_docs)
      | qa_prompt
      | llm
     )
+    references=""
     async for jsonpatch_op in rag_chain.astream_log(
         {"question": query, "chat_history": chat_history_decode(chat_history)},
-        include_names=["Retriever"],
+        include_names=["wrapedretriever"],
         with_streamed_output_list=False,
     ):  
+        print(jsonpatch_op.ops[0])
         if jsonpatch_op.ops[0]["path"] == "/final_output":
             output = jsonpatch_op.ops[0]["value"]
-            print(output.content, flush=True)
+            #print(output.content, flush=True)
             result_dict = {"type":"text","value":output.content}
             yield f"data: {json.dumps(result_dict)}\n\n"
             # {"type":"text","value":"~"}
-        if jsonpatch_op.ops[0]["path"] == "/logs/Retriever/final_output":
+        if jsonpatch_op.ops[0]["path"] == "/logs/wrapedretriever/streamed_output/-":
             print("\n" + "-" * 30 + "\n")
             print("Used documents:")
             print(jsonpatch_op.ops[0]["value"])
-            documents = [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in jsonpatch_op.ops[0]["value"]["documents"]]
-            if len(documents) == 0:
-                references = []
+            if jsonpatch_op.ops[0]["value"]==[]:
+                references=""
             else:
-                referenced_links=[]
-                references=[]
-                for doc in documents:
-                    if doc["metadata"]["source"] in referenced_links:
-                        continue
-                    referenced_links.append(doc["metadata"]["source"])
-                    reference = f'<a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a>'
-                    result_dict={"type":"documents","value":reference}
-                    references.append(reference)
-                    yield f"data: {json.dumps(result_dict)}\n\n"
-            # {"type":"documents","value":[{"page_content":"~~","metadata":{"discription":"~","title":"~","source":"https://~"}}]}
+                documents = [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in jsonpatch_op.ops[0]["value"]]
+                if len(documents) == 0:
+                    references = []
+                else:
+                    referenced_links=[]
+                    references=[]
+                    for doc in documents:
+                        if doc["metadata"]["source"] in referenced_links:
+                            continue
+                        referenced_links.append(doc["metadata"]["source"])
+                        reference = f'<a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a>'
+                        result_dict={"type":"documents","value":reference}
+                        references.append(reference)
+                        yield f"data: {json.dumps(result_dict)}\n\n"
+                # {"type":"documents","value":[{"page_content":"~~","metadata":{"discription":"~","title":"~","source":"https://~"}}]}
     if references=="":
         chat_history.extend([{"type":"human","content":query},{"type":"ai","content":output.content}])
     else:
