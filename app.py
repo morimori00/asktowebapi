@@ -192,12 +192,16 @@ class StreamRequest(BaseModel):
     sesstionId: str
     website: str
 
+async def say_error(message):
+    res={"type":"text","value":message}
+    yield f"data: {json.dumps(res)}\n\n"
+    yield "data: {\"end\": true}\n\n"
+
 @app.post("/stream")
 def stream(body: StreamRequest):
     query = body.question
-    if len(query)<=3 or len(query)>1000:
-        StreamingResponse("data: {\"type\":\"text\",\"value\":\"Please ask a question with more than 3 characters and less than 1000 characters.\"}\n\n")
-        StreamingResponse("data: {\"end\": true}\n\n")
+    if len(query)<3 or len(query)>1000:
+        say_error("Please enter a question between 3 and 1000 characters.")
         return 
     sesstionId = body.sesstionId
     website=body.website
