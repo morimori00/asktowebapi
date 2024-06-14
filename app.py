@@ -103,10 +103,10 @@ def load_chat_history(session_id):
     # Load the chat history from a json file
     data=database.select("*").eq("id",session_id).execute()
     if len(data.data)==0:
-        return []
+        return [[],""]
     jsondata = data.data[0]["content"]
     date=data.data[0]["created_at"]
-    return json.loads(jsondata) , date
+    return [json.loads(jsondata) , date]
 
 def printme(input):
     if input=="null":
@@ -206,17 +206,17 @@ def stream(body: StreamRequest):
         return 
     sesstionId = body.sesstionId
     website=body.website
-    chat_history ,d = load_chat_history(sesstionId)
+    chat_history = load_chat_history(sesstionId)[0]
     return StreamingResponse(Askme(query,chat_history,website,sesstionId), media_type="text/event-stream")
 
 @app.post("/gethistory")
 def gethistory(sesstionId: str):
-    chat_history ,d  = load_chat_history(sesstionId)
-    return {"chat_history": chat_history, "date":d}
+    chat_history  = load_chat_history(sesstionId)
+    return {"chat_history": chat_history[0], "date": chat_history[1]}
 
 @app.post("/resethistory")
 def resethistory(sesstionId: str):
-    chat_history, d= load_chat_history(sesstionId)
+    chat_history= load_chat_history(sesstionId)[0]
     if chat_history==[]:
         return {"chat_history": []}
     chat_history = []
