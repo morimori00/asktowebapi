@@ -25,7 +25,6 @@
             "4":"What a difficult question!🙄",
             "5":"This is the first time it has taken so long😮"
         }
-        
     },
     "ja": {
         "title": "検索アシスタント",
@@ -269,5 +268,59 @@
             "4":"Was für eine schwierige Frage!🙄",
             "5":"Das ist das erste Mal, dass es so lange"
         }
-    } 
+    },
+    "tr": {
+        "title": "Arama Asistanı",
+        "tooltip": {
+            "ready": "AI Desteği Hazır",
+            "reset": "Konuşmayı Sıfırla",
+            "send": "Gönder",
+            "close": "Kapat"
+        },
+        "message": {
+            "hello": "Web sitemizi ziyaret ettiğiniz için teşekkür ederiz. Sorunuzu yanıtlayacak ilgili sayfayı bulacağım.",
+            "error": "Sunucuya bağlanılamadı.<br>Sorunuzu yanıtlayamadığım için üzgünüm.",
+            "reset": "Konuşmayı sıfırladım. Lütfen bana herhangi bir şey sorun.",
+            "reference":"Referans sayfalar"
+        },
+        "system": {
+            "error": "Bir şeyler yanlış gitti. Lütfen tekrar deneyin.",
+            "reset": "Bağlam silindi"
+        },
+        "placeholder": "Sorunuzu buraya yazın..",
+        "loading":{
+            "1":"Yanıt vermek için bilgi aranıyor",
+            "2":"Bilgiler düzenleniyor",
+            "3":"Yakında tamamlanacak",
+            "4":"Ne zor bir soru!🙄",
+            "5":"Bu kadar uzun sürdüğü ilk kez😮"
+        }
+    },
+    "ar": {
+        "title": "مساعد البحث",
+        "tooltip": {
+            "ready": "الدعم الذكي جاهز",
+            "reset": "إعادة تعيين المحادثة",
+            "send": "إرسال",
+            "close": "إغلاق"
+        },
+        "message": {
+            "hello": "شكرًا لزيارتك لموقعنا. سأجد الصفحة ذات الصلة بسؤالك.",
+            "error": "تعذر الاتصال بالخادم.<br>آسف لعدم القدرة على الإجابة على سؤالك.",
+            "reset": "لقد قمت بإعادة تعيين المحادثة. يرجى طرح أي سؤال.",
+            "reference":"الصفحات المرجعية"
+        },
+        "system": {
+            "error": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+            "reset": "تم حذف السياق"
+        },
+        "placeholder": "اكتب سؤالك هنا..",
+        "loading":{
+            "1":"البحث عن المعلومات للإجابة",
+            "2":"تنظيم المعلومات",
+            "3":"سيتم الانتهاء قريبًا",
+            "4":"ما هو السؤال الصعب!🙄",
+            "5":"هذه المرة الأولى التي تستغرق فيها كل هذا الوقت😮"
+        }
+    }
 }
