@@ -268,6 +268,13 @@ ASKTOWEB_ASSISTANT_DOM =
     justify-content: space-between;
     gap: 5px;
 }
+.chat .messages .message .loader-text {
+  font-style: italic;
+  font-size: 0.7rem;
+  color: #777;
+  width:80px;
+  height:0.7rem;
+}
 .chat .asktowebinput i {
   font-size: 1.5rem;
   color: #666;
@@ -385,7 +392,8 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         <div class="typing typing-1"></div>
         <div class="typing typing-2"></div>
         <div class="typing typing-3"></div>
-      </div>`;
+        <div class="loader-text"><marquee scrollamount="3">Searching infomation from website...</marquee></div>
+        </div>`;
 
 const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
 //const API_URL = "http://127.0.0.1:8000";
@@ -601,8 +609,21 @@ class ASKTOWEB_ASSISTANT {
   }
   addloader() {
     const loading = document.getElementById("asktoweb-message-loader");
-    if (loading) { return; }
-    this.chat.innerHTML += ASKTOWEB_ASSISTANT_TYPING_DOM;
+    if (!loading) { this.chat.innerHTML += ASKTOWEB_ASSISTANT_TYPING_DOM; }
+    const loader_text = document.getElementById("asktoweb-message-loader").querySelector(".loader-text>marquee");
+    loader_text.innerText = l("loading.1");
+    setTimeout(() => {
+      loader_text.innerText = l("loading.2");
+      setTimeout(() => {
+        loader_text.innerText = l("loading.3");
+        setTimeout(() => {
+          loader_text.innerText = l("loading.4");
+          setTimeout(() => {
+            loader_text.innerText = l("loading.5");
+          }, 13000);
+        }, 10000);
+      }, 6000);
+    }, 7000);
   }
   openaskwin() {
     if (this.openflg == 1) {
