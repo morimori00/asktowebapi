@@ -490,13 +490,22 @@ class ASKTOWEB_ASSISTANT {
         // Handle the response data here
         console.log(data["chat_history"]);
         console.log(data["chat_history"].length);
+        //format of data["date"] is "2024-06-12T16:44:34.634356+00:00" so we need to format it into "2024-06-12 16:44"
+        const formated_date = data["date"].split("T")[0] + " " + data["date"].split("T")[1].split(".")[0].substring(0, 5);
+        console.log(data["date"]);
+        console.log(formated_date);
         this.resetbtn.disabled = false;
         this.postbtn.disabled = false;
-        this.aimessage(l("message.hello"));
         if (data["chat_history"].length == 0) {
           this.resetbtn.disabled = true;
+          const date = new Date();
+          const datestring = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+          this.systemmessage(datestring);
+        this.aimessage(l("message.hello"));
           return;
         }
+        this.systemmessage(formated_date);
+        this.aimessage(l("message.hello"));
         data["chat_history"].forEach(element => {
           if (element.type == "human") {
             this.humanmessage(element.content);
