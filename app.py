@@ -105,7 +105,8 @@ def load_chat_history(session_id):
     if len(data.data)==0:
         return []
     jsondata = data.data[0]["content"]
-    return json.loads(jsondata)
+    date=data.data[0]["created_at"]
+    return json.loads(jsondata) , date
 
 def printme(input):
     if input=="null":
@@ -205,17 +206,18 @@ def stream(body: StreamRequest):
         return 
     sesstionId = body.sesstionId
     website=body.website
-    chat_history = load_chat_history(sesstionId)
+    chat_history ,d = load_chat_history(sesstionId)
     return StreamingResponse(Askme(query,chat_history,website,sesstionId), media_type="text/event-stream")
 
 @app.post("/gethistory")
 def gethistory(sesstionId: str):
-    chat_history = load_chat_history(sesstionId)
-    return {"chat_history": chat_history}
+    chat_history ,d  = load_chat_history(sesstionId)
+    return {"chat_history": chat_history, "date":d}
 
 @app.post("/resethistory")
 def resethistory(sesstionId: str):
-    if load_chat_history(sesstionId)==[]:
+    chat_history, d= load_chat_history(sesstionId)
+    if chat_history==[]:
         return {"chat_history": []}
     chat_history = []
     save_chat_history(chat_history, sesstionId)
