@@ -15,7 +15,8 @@
         },
         "system": {
             "error": "Something get wrong. Please try again.",
-            "reset": "Context deleted"
+            "reset": "Context deleted",
+            "loading":"Loading data. Please wait.."
         },
         "placeholder": "Type your question here..",
         "loading":{
@@ -42,7 +43,8 @@
         },
         "system": {
             "error": "エラーが発生しました。もう一度お試しください。",
-            "reset": "会話履歴を削除しました"
+            "reset": "会話履歴を削除しました",
+            "loading":"データを読み込んでいます。しばらくお待ちください.."
         },
         "placeholder": "ここに質問を入力..",
         "loading":{
@@ -69,7 +71,8 @@
         },
         "system": {
             "error": "出现错误。请重试。",
-            "reset": "上下文已删除"
+            "reset": "上下文已删除",
+            "loading":"正在加载数据。请稍候.."
         },
         "placeholder": "在此输入您的问题..",
         "loading":{
@@ -96,7 +99,8 @@
         },
         "system": {
             "error": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
-            "reset": "संदर्भ हटाया गया"
+            "reset": "संदर्भ हटाया गया",
+            "loading":"डेटा लोड हो रहा है। कृपया प्रतीक्षा करें.."
         },
         "placeholder": "अपना प्रश्न यहां टाइप करें ..",
         "loading":{
@@ -123,7 +127,8 @@
         },
         "system": {
             "error": "Algo salió mal. Por favor, inténtelo de nuevo.",
-            "reset": "Contexto eliminado"
+            "reset": "Contexto eliminado",
+            "loading":"Cargando datos. Por favor espere.."
         },
         "placeholder": "Escriba su pregunta aquí..",
         "loading":{
@@ -150,7 +155,8 @@
         },
         "system": {
             "error": "Un problème est survenu. Veuillez réessayer.",
-            "reset": "Contexte supprimé"
+            "reset": "Contexte supprimé",
+            "loading":"Chargement des données. Veuillez patienter.."
         },
         "placeholder": "Tapez votre question ici..",
         "loading":{
@@ -177,7 +183,8 @@
         },
         "system": {
             "error": "Algo deu errado. Por favor, tente novamente.",
-            "reset": "Contexto excluído"
+            "reset": "Contexto excluído",
+            "loading":"Carregando dados. Por favor, aguarde.."
         },
         "placeholder": "Digite sua pergunta aqui..",
         "loading":{
@@ -204,7 +211,8 @@
         },
         "system": {
             "error": "Qualcosa è andato storto. Per favore riprova.",
-            "reset": "Contesto eliminato"
+            "reset": "Contesto eliminato",
+            "loading":"Caricamento dati. Attendere prego.."
         },
         "placeholder": "Digita qui la tua domanda..",
         "loading":{
@@ -231,7 +239,8 @@
         },
         "system": {
             "error": "Что-то пошло не так. Пожалуйста, попробуйте еще раз.",
-            "reset": "Контекст удален"
+            "reset": "Контекст удален",
+            "loading":"Загрузка данных. Пожалуйста, подождите.."
         },
         "placeholder": "Введите свой вопрос здесь..",
         "loading":{
@@ -258,7 +267,8 @@
         },
         "system": {
             "error": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
-            "reset": "Kontext gelöscht"
+            "reset": "Kontext gelöscht",
+            "loading":"Daten werden geladen. Bitte warten.."
         },
         "placeholder": "Geben Sie hier Ihre Frage ein..",
         "loading":{
@@ -285,7 +295,8 @@
         },
         "system": {
             "error": "Bir şeyler yanlış gitti. Lütfen tekrar deneyin.",
-            "reset": "Bağlam silindi"
+            "reset": "Bağlam silindi",
+            "loading":"Veri yükleniyor. Lütfen bekleyin.."
         },
         "placeholder": "Sorunuzu buraya yazın..",
         "loading":{
@@ -312,7 +323,8 @@
         },
         "system": {
             "error": "حدث خطأ. يرجى المحاولة مرة أخرى.",
-            "reset": "تم حذف السياق"
+            "reset": "تم حذف السياق",
+            "loading":"جاري تحميل البيانات. يرجى الانتظار.."
         },
         "placeholder": "اكتب سؤالك هنا..",
         "loading":{
