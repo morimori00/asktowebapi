@@ -483,6 +483,7 @@ class ASKTOWEB_ASSISTANT {
   initchathistory() {
     this.resetbtn.disabled = true;
     this.postbtn.disabled = true;
+    this.systemmessage(l("system.loading"));
     fetch(API_URL + '/gethistory?sesstionId=' + get_sesstionId(), {
       method: 'POST',
       headers: {
@@ -495,6 +496,7 @@ class ASKTOWEB_ASSISTANT {
         console.log(data["chat_history"]);
         this.resetbtn.disabled = false;
         this.postbtn.disabled = false;
+        this.chat.innerHTML = "";
         if (data["chat_history"].length == 0) {
           this.resetbtn.disabled = true;
           const date = new Date();
