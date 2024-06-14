@@ -6,7 +6,7 @@ ASKTOWEB_ASSISTANT_DOM =
 <div class="ask-to-website">
 <span data-tootik="AI Support is Ready" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
   <button id="ask-to-website-btn" class="ask-to-website-animation">
-    <strong><i class="fas fa-search"></i></strong>
+    <strong><i class="fas fa-spinner fa-spin"></i></strong>
     </button>
     </span>
 </div>
@@ -424,6 +424,7 @@ class ASKTOWEB_ASSISTANT {
     // 初期化
     this.openflg = 1;
     this.btn = document.getElementById("ask-to-website-btn");
+    this.btn.innerHTML = '<strong><i class="fas fa-search"></i></strong>';
     this.win = document.getElementById("ask-to-website-win");
     this.tooltip = document.getElementById("ask-to-web-tooltip");
     this.postbtn = document.getElementById("ask-to-website-post-btn");
@@ -483,11 +484,11 @@ class ASKTOWEB_ASSISTANT {
         console.log(data["chat_history"].length);
         this.resetbtn.disabled = false;
         this.postbtn.disabled = false;
+        this.aimessage(l("message.hello"));
         if (data["chat_history"].length == 0) {
           this.resetbtn.disabled = true;
           return;
         }
-        this.aimessage(l("message.hello"));
         data["chat_history"].forEach(element => {
           if (element.type == "human") {
             this.humanmessage(element.content);
@@ -664,8 +665,8 @@ var LOCARIZATION={};
 document.addEventListener("DOMContentLoaded", async function () {
   //append it to the body
   console.log("AssistantBtn created");
-  LOCARIZATION = await fetchJsonData();
   document.body.innerHTML += ASKTOWEB_ASSISTANT_DOM;
+  LOCARIZATION = await fetchJsonData();
   asktoweb = new ASKTOWEB_ASSISTANT();
 });
 const l = (key) => {
