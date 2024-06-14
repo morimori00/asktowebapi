@@ -62,18 +62,22 @@ ASKTOWEB_ASSISTANT_DOM =
   font-weight: 400;
   line-height: 1.25em;
   letter-spacing: 0.025em;
+  z-index: 1000;
+  --primary-color: black;
+  --secondary-color: #fff;
 }
   
-
 .ask-to-website-animation {
   position: relative;
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
   border: none;
-  background: #333;
+  /*background: #333;*/
+  /* set background as blue cool gradinent */
+  background: var(--primary-color);
   transition: 0.3s;
-  color: white;
+  color: var(--secondary-color);
 }
 
 .ask-to-website-animation:hover {
@@ -277,12 +281,13 @@ ASKTOWEB_ASSISTANT_DOM =
 }
 .chat .asktowebinput i {
   font-size: 1.5rem;
-  color: #666;
-  cursor: pointer;
+  color: var(--primary-color);
+  opacity: 0.7;
+  cursor: inherit;
   transition: color 200ms;
 }
 .chat .asktowebinput i:hover {
-  color: #333;
+  opacity: 1;
 }
 .chat .asktowebinput .ask-to-website-input-container{
 width:100%;
@@ -314,18 +319,17 @@ min-height: 1.3rem;
   font-family: Red Hat Display, sans- serif;
   font-weight: 400;
   letter-spacing: 0.025em;
-  /* ユーザーによるリサイズを無効にする
-  */
+  overflow: hidden;
   resize: none;
   min-height: 1.3rem;
   height: 100%;
   width:100%;
-    box-sizing: border-box;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
 }
 .chat .asktowebinput textarea:focus {
   border:solid 1px #444;
@@ -351,8 +355,8 @@ min-height: 1.3rem;
 }
 .pic.robot {
   /*https://i.ibb.co/k6q414b/2024-06-13-235132.png*/
-  
-  background-image: url("https://i.ibb.co/pbWCkhM/1.png");
+  background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");
+  /*background-image: url("https://i.ibb.co/pbWCkhM/1.png");*/
 }
 
 @keyframes fadeInUp {
@@ -385,8 +389,8 @@ min-height: 1.3rem;
 
 var USER_LANGUAGE = navigator.language || navigator.userLanguage;
 var USER_LANGUAGE = USER_LANGUAGE.substring(0, 2);
-const diaplayname= new Intl.DisplayNames([USER_LANGUAGE], {type: 'language'});
-var LANGAGE_NAME= diaplayname.of(USER_LANGUAGE);
+const diaplayname = new Intl.DisplayNames([USER_LANGUAGE], { type: 'language' });
+var LANGAGE_NAME = diaplayname.of(USER_LANGUAGE);
 
 ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="message robot">
         <div class="typing typing-1"></div>
@@ -396,7 +400,7 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         </div>`;
 
 const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-//const API_URL = "http://127.0.0.1:8000";
+// const API_URL = "http://127.0.0.1:8000";
 function generateRandomID() {
   let randomID = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -443,7 +447,7 @@ class ASKTOWEB_ASSISTANT {
     this.closebtn.dataset.tootik = l("tooltip.close");
     this.hiddeninput = document.getElementById("ask-to-website-hidden-input");
     this.nametext = document.getElementById("ask-to-website-name");
-    this.nametext.innerHTML = l("title")+' ['+LANGAGE_NAME+']';
+    this.nametext.innerHTML = l("title") + ' [' + LANGAGE_NAME + ']';
     this.closebtn.addEventListener("click", this.openaskwin.bind(this));
     this.asktowebtextarea = document.getElementById("ask-to-website-input");
     this.asktowebtextarea.placeholder = l("placeholder");
@@ -489,27 +493,24 @@ class ASKTOWEB_ASSISTANT {
       .then(data => {
         // Handle the response data here
         console.log(data["chat_history"]);
-        console.log(data["chat_history"].length);
-        //format of data["date"] is "2024-06-12T16:44:34.634356+00:00" so we need to format it into "2024-06-12 16:44"
-        const formated_date = data["date"].split("T")[0] + " " + data["date"].split("T")[1].split(".")[0].substring(0, 5);
-        console.log(data["date"]);
-        console.log(formated_date);
         this.resetbtn.disabled = false;
         this.postbtn.disabled = false;
         if (data["chat_history"].length == 0) {
           this.resetbtn.disabled = true;
           const date = new Date();
-          const datestring = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+          const datestring = date.toLocaleDateString() + " " + date.toLocaleTimeString().substring(0, 5);
           this.systemmessage(datestring);
-        this.aimessage(l("message.hello"));
+          this.aimessage(l("message.hello"));
           return;
         }
+        const formated_date = data["date"].split("T")[0] + " " + data["date"].split("T")[1].split(".")[0].substring(0, 5);
+        console.log(formated_date);
         this.systemmessage(formated_date);
         this.aimessage(l("message.hello"));
         data["chat_history"].forEach(element => {
           if (element.type == "human") {
             this.humanmessage(element.content);
-          } else if (element.type == "ai"){
+          } else if (element.type == "ai") {
             this.aimessage(element.content);
           } else if (element.type == "references") {
             this.aimessage(references_to_dom(element.content.split(",")));
@@ -587,31 +588,17 @@ class ASKTOWEB_ASSISTANT {
     this.resetbtn.disabled = true;
     this.postbtn.disabled = true;
     this.resetbtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'
-    fetch(API_URL + '/resethistory?sesstionId=' + get_sesstionId(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(response => response.json())
-      .then(data => {
-        // Handle the response data here
-        //console.log("sesstion reseted");
-        //class massageを持つ要素すべての透明度を上げる 
-      this.resetbtn.disabled = false;
-      this.postbtn.disabled = false;
-        this.resetbtn.innerHTML = '<i class="fas fa-retweet"></i>'
-        const messages = document.getElementsByClassName("message");
-        for (let i = 0; i < messages.length; i++) {
-          messages[i].style.opacity = 0.5;
-        }
-        this.systemmessage(l("system.reset"));
-        this.aimessage(l("message.reset"));
-      })
-      .catch(error => {
-        // Handle any errors that occur during the request
-        //console.error(error);
-      });
+    const new_sessionId = generateRandomID();
+    localStorage.setItem("DIKSA", new_sessionId);
+    this.resetbtn.disabled = false;
+    this.postbtn.disabled = false;
+    this.resetbtn.innerHTML = '<i class="fas fa-retweet"></i>'
+    const messages = document.getElementsByClassName("message");
+    for (let i = 0; i < messages.length; i++) {
+      messages[i].style.opacity = 0.5;
+    }
+    this.systemmessage(l("system.reset"));
+    this.aimessage(l("message.reset"));
   }
   endstreaming() {
     this.streamingflg = false;
@@ -668,29 +655,29 @@ class ASKTOWEB_ASSISTANT {
 // Function to fetch the JSON data
 async function fetchJsonData() {
   try {
-      // Send a GET request to the URL
-      const response = await fetch(API_URL+"/static/localization.json");
-      
-      // Check if the response status is OK (status code 200)
-      if (!response.ok) {
-          throw new Error('Network response was not ok ' + response.statusText);
-      }
-      
-      // Parse the response as JSON
-      const data = await response.json();
-      // Log the JSON data
-      console.log(data["en"]);
-      return data;
-      
-      // You can process the JSON data here
-      // For example, update the DOM or perform other operations with the data
+    // Send a GET request to the URL
+    const response = await fetch(API_URL + "/static/localization.json");
+
+    // Check if the response status is OK (status code 200)
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+
+    // Parse the response as JSON
+    const data = await response.json();
+    // Log the JSON data
+    console.log(data["en"]);
+    return data;
+
+    // You can process the JSON data here
+    // For example, update the DOM or perform other operations with the data
   } catch (error) {
-      // Handle any errors that occurred during the fetch
-      console.error('There was a problem with the fetch operation:', error);
+    // Handle any errors that occurred during the fetch
+    console.error('There was a problem with the fetch operation:', error);
   }
 }
 
-var LOCARIZATION={};
+var LOCARIZATION = {};
 //After Website loaded, Create new Div element from text and append it to the body
 document.addEventListener("DOMContentLoaded", async function () {
   //append it to the body
@@ -701,7 +688,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 const l = (key) => {
   data = LOCARIZATION[USER_LANGUAGE];
-  key= key.split(".")
+  key = key.split(".")
   let res = data;
   key.forEach(element => {
     res = res[element];
@@ -710,7 +697,7 @@ const l = (key) => {
 }
 var references = [];
 async function FetchAPI(query, myaimessage, fn, errormessage) {
-  references=[];
+  references = [];
   fetch(API_URL + "/stream", {
     method: "POST",
     headers: {
