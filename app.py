@@ -10,6 +10,7 @@ from starlette.middleware.cors import CORSMiddleware # 追加
 
 #app = FastAPI()
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 # CORSミドルウェアの設定
 app.add_middleware(
     CORSMiddleware,
@@ -27,6 +28,7 @@ embeddings = OpenAIEmbeddings()
 from langchain_core.prompts import ChatPromptTemplate
 import tiktoken
 from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from pydantic import BaseModel
