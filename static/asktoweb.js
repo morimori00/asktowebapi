@@ -3,7 +3,6 @@ ASKTOWEB_ASSISTANT_DOM =
 <!-- ADD BY ASKTOWEB ASSISTANT CODE -->
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
  <link rel="stylesheet" href="https://npmcdn.com/tootik@1.0.2/css/tootik.min.css">
- <script type="application/json" id="ask-to-website-localization" src="localization.json"></script>
 <div class="ask-to-website">
 <span data-tootik="AI Support is Ready" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
   <button id="ask-to-website-btn" class="ask-to-website-animation">
@@ -15,10 +14,8 @@ ASKTOWEB_ASSISTANT_DOM =
 <div class="center" id="ask-to-website-win">
   <div class="chat">
     <div class="contact bar">
-      <button class="closebtn" id="ask-to-website-close-btn">
-    <span data-tootik="Close" data-tootik-conf="no-arrow shadow delay">
+      <button class="closebtn" data-tootik="Close" data-tootik-conf="no-arrow shadow delay" id="ask-to-website-close-btn">
         <i class="fas fa-times"></i>
-      </span>
       </button>
       <div class="pic robot"></div>
       <div id="ask-to-website-name" class="name"></div>
@@ -37,12 +34,6 @@ ASKTOWEB_ASSISTANT_DOM =
       </div>
     </div>
     <div class="messages" id="chat">
-      <div class="time">
-        Today
-      </div>
-      <div class="message robot">
-        Thank you for visiting our website. I will find the relevant page to your question.
-      </div>
     </div>
     <div class="asktowebinput">
       <button id="ask-to-website-reset-btn" class="asktowebpost" data-tootik="Reset Conversation" data-tootik-conf="no-arrow shadow delay"><i class="fas fa-retweet"></i></button>
@@ -385,12 +376,11 @@ min-height: 1.3rem;
 </style>
 `
 
-USER_LANGUAGE = navigator.language || navigator.userLanguage;
-USER_LANGUAGE = USER_LANGUAGE.substring(0, 2);
+var USER_LANGUAGE = navigator.language || navigator.userLanguage;
+var USER_LANGUAGE = USER_LANGUAGE.substring(0, 2);
 const diaplayname= new Intl.DisplayNames([USER_LANGUAGE], {type: 'language'});
-LANGAGE_NAME= diaplayname.of(USER_LANGUAGE);
+var LANGAGE_NAME= diaplayname.of(USER_LANGUAGE);
 
-console.log(USER_LANGUAGE);
 ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="message robot">
         <div class="typing typing-1"></div>
         <div class="typing typing-2"></div>
@@ -408,7 +398,7 @@ function generateRandomID() {
   return randomID;
 }
 function references_to_dom(references) {
-  let dom = "参照リンク";
+  let dom = l("message.reference");
   dom += "<ol>";
   references.forEach(element => {
     dom += "<li><div class='references-list'>" + element + "<div></li>";
@@ -437,14 +427,17 @@ class ASKTOWEB_ASSISTANT {
     this.win = document.getElementById("ask-to-website-win");
     this.tooltip = document.getElementById("ask-to-web-tooltip");
     this.postbtn = document.getElementById("ask-to-website-post-btn");
+    this.postbtn.dataset.tootik = l("tooltip.send");
     this.resetbtn = document.getElementById("ask-to-website-reset-btn");
+    this.resetbtn.dataset.tootik = l("tooltip.reset");
     this.closebtn = document.getElementById("ask-to-website-close-btn");
+    this.closebtn.dataset.tootik = l("tooltip.close");
     this.hiddeninput = document.getElementById("ask-to-website-hidden-input");
     this.nametext = document.getElementById("ask-to-website-name");
-    this.nametext.innerHTML = 'Searching Assistant ['+LANGAGE_NAME+']';
+    this.nametext.innerHTML = l("title")+' ['+LANGAGE_NAME+']';
     this.closebtn.addEventListener("click", this.openaskwin.bind(this));
     this.asktowebtextarea = document.getElementById("ask-to-website-input");
-
+    this.asktowebtextarea.placeholder = l("placeholder");
     this.asktowebtextarea.addEventListener("keydown", function (e) {
       if (e.key === 'Enter' && e.shiftKey) {
         this.postit.bind(this)();
@@ -460,7 +453,6 @@ class ASKTOWEB_ASSISTANT {
     })
     this.postbtn.addEventListener("click", this.postit.bind(this)); // Bind the function to the class instance
     console.log("AssistantBtn created" + this.openflg);
-
   }
   postit() {
     const text = this.asktowebtextarea.value;
@@ -495,6 +487,7 @@ class ASKTOWEB_ASSISTANT {
           this.resetbtn.disabled = true;
           return;
         }
+        this.aimessage(l("message.hello"));
         data["chat_history"].forEach(element => {
           if (element.type == "human") {
             this.humanmessage(element.content);
@@ -513,8 +506,8 @@ class ASKTOWEB_ASSISTANT {
   errormessage() {
     const loading = document.getElementById("asktoweb-message-loader");
     if (loading) { loading.remove(); }
-    this.systemmessage("Something get wrong. Please try again.");
-    this.aimessage("Could not connect to server.<br> Sorry for not being able to answer your question.")
+    this.systemmessage(l("system.error"));
+    this.aimessage(l("message.error"))
     this.endstreaming();
     this.postbtn.innerHTML = '<i class="fas fa-paper-plane"></i>'
     this.postbtn.disabled = false;
@@ -594,8 +587,8 @@ class ASKTOWEB_ASSISTANT {
         for (let i = 0; i < messages.length; i++) {
           messages[i].style.opacity = 0.5;
         }
-        this.systemmessage("Context deleted.");
-        this.aimessage("I have reset the conversation. Please ask me anything.");
+        this.systemmessage(l("system.reset"));
+        this.aimessage(l("message.reset"));
       })
       .catch(error => {
         // Handle any errors that occur during the request
@@ -629,7 +622,7 @@ class ASKTOWEB_ASSISTANT {
       this.win.style.animation = 'fadeOutDown 0.3s ease-out forwards';
       setTimeout(() => {
         this.win.style.display = "none"
-        this.tooltip.dataset.tootik = "AI Support is Ready";
+        this.tooltip.dataset.tootik = l("tooltip.ready");
         this.openflg = 1
       }, 500);
     } else {
@@ -640,16 +633,50 @@ class ASKTOWEB_ASSISTANT {
   sclchat() { this.chat.scrollTop = this.chat.scrollHeight - this.chat.clientHeight; }
 
 }
-//console.log("AssistantBtn loaded");
 
+// Function to fetch the JSON data
+async function fetchJsonData() {
+  try {
+      // Send a GET request to the URL
+      const response = await fetch(API_URL+"/static/localization.json");
+      
+      // Check if the response status is OK (status code 200)
+      if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+      }
+      
+      // Parse the response as JSON
+      const data = await response.json();
+      // Log the JSON data
+      console.log(data["en"]);
+      return data;
+      
+      // You can process the JSON data here
+      // For example, update the DOM or perform other operations with the data
+  } catch (error) {
+      // Handle any errors that occurred during the fetch
+      console.error('There was a problem with the fetch operation:', error);
+  }
+}
+
+var LOCARIZATION={};
 //After Website loaded, Create new Div element from text and append it to the body
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   //append it to the body
   console.log("AssistantBtn created");
+  LOCARIZATION = await fetchJsonData();
   document.body.innerHTML += ASKTOWEB_ASSISTANT_DOM;
   asktoweb = new ASKTOWEB_ASSISTANT();
-})
-
+});
+const l = (key) => {
+  data = LOCARIZATION[USER_LANGUAGE];
+  key= key.split(".")
+  let res = data;
+  key.forEach(element => {
+    res = res[element];
+  });
+  return res;
+}
 var references = [];
 async function FetchAPI(query, myaimessage, fn, errormessage) {
   references=[];
