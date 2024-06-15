@@ -355,8 +355,8 @@ min-height: 1.3rem;
 }
 .pic.robot {
   /*https://i.ibb.co/k6q414b/2024-06-13-235132.png*/
-  background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");
-  /*background-image: url("https://i.ibb.co/pbWCkhM/1.png");*/
+  /*background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");*/
+  background-image: url("https://i.ibb.co/pbWCkhM/1.png");
 }
 
 @keyframes fadeInUp {
@@ -399,8 +399,8 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         <div class="loader-text"><marquee scrollamount="3">Searching infomation from website...</marquee></div>
         </div>`;
 
-const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-// const API_URL = "http://127.0.0.1:8000";
+// const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
+const API_URL = "http://127.0.0.1:8000";
 function generateRandomID() {
   let randomID = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
