@@ -40,9 +40,9 @@ You are a sub-assistant who answers questions of website visitors.
 Given the user and assistant's conversation history and new user questions,
 You generate queries for contextual searches within the website that the assistant uses to generate answers to the user.
 Think about what information you need to answer the user's question and generate a query.
+If the latest user input is just Greetings or thanks (not a question or request), please write "null".
 The query should include the content of the user's question, plus at least two sentences guessing the content of the page where the answer is likely to be found.
 Generate only queries, do not write any other context.
-If the latest user input is not a question or request, please write "null".
 """
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
     [
@@ -125,7 +125,7 @@ async def Askme(query,chat_history,website,sesstionId):
     ct = 0
     output = {}
     vectorstore = PineconeVectorStore(index_name=index_name, embedding=embeddings, namespace=website)
-    retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.85,"k":2})
+    retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.85,"k":3})
     def wrapedretriever(query):
         if(query=="null"):
             print("No reference needed")
