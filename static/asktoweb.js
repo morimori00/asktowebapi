@@ -229,6 +229,47 @@ ASKTOWEB_ASSISTANT_DOM =
   background: #333;
   color: white;
 }
+  .message .source-link{
+  border:solid 1px rgba(0,0,0,.1);
+  width:13rem;
+  height:2rem;
+  border-radius:5px;
+  display:flex;
+  padding:5px;
+  cursor:pointer;
+  margin:3px;
+  color:black;
+  text-decoration:none; 
+}
+.message .source-link .source-fav{
+  width:2rem;
+  height:auto;
+  background-repeat:no-repeat;
+  background-size:contain;
+  border-radius:5px;
+}
+.chat .message .source-link .source-texts{
+  width:calc(100% - 2rem - 10px);
+  padding:0;
+  margin-left:10px;
+}
+.chat .message .source-link .source-texts .source-title{
+  padding:0;
+  margin:0;
+  font-size:.8rem;
+  overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.chat .message .source-link .source-texts .source-discription{
+  padding:0;
+  margin:0;
+  font-size:.6rem;
+  overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  line-height: .9;
+}
 .chat .messages .message .typing {
   display: inline-block;
   width: 0.8rem;
@@ -246,11 +287,6 @@ ASKTOWEB_ASSISTANT_DOM =
 }
 .chat .messages .message .typing.typing-3 {
   animation: typing 3s 500ms infinite;
-}
-.chat .messages .message .references-list{
-   overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 .chat .asktowebpost {
     flex-shrink: 0;
@@ -354,9 +390,9 @@ min-height: 1.3rem;
   }
 }
 .pic.robot {
-  /*https://i.ibb.co/k6q414b/2024-06-13-235132.png*/
   /*background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");*/
-  background-image: url("https://i.ibb.co/pbWCkhM/1.png");
+  /*background-image: url("https://i.ibb.co/pbWCkhM/1.png");*/
+  background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");
 }
 
 @keyframes fadeInUp {
@@ -399,8 +435,8 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         <div class="loader-text"><marquee scrollamount="3">Searching infomation from website...</marquee></div>
         </div>`;
 
-// const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
+//const API_URL = "http://127.0.0.1:8000";
 function generateRandomID() {
   let randomID = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -411,11 +447,18 @@ function generateRandomID() {
 }
 function references_to_dom(references) {
   let dom = l("message.reference");
-  dom += "<ol>";
   references.forEach(element => {
-    dom += "<li><div class='references-list'>" + element + "<div></li>";
+    data = element;
+    dom += `
+    <a class="source-link" href="${data["source"]}" target="_blank" data-tootik="${l("tooltip.link")}" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
+          <div style="background-image:url('https://www.google.com/s2/favicons?domain=${data["source"]}');" class="source-fav"></div>
+          <div class="source-texts">
+            <p class="source-title">${data["title"]}</p>
+            <p class="source-discription">${data["discription"]}</p>
+          </div>
+        </a>
+    `;
   });
-  dom += "</ol>";
   return dom;
 }
 
@@ -515,7 +558,8 @@ class ASKTOWEB_ASSISTANT {
           } else if (element.type == "ai") {
             this.aimessage(element.content);
           } else if (element.type == "references") {
-            this.aimessage(references_to_dom(element.content.split(",")));
+            const referencesdirs=element.content.split("$")
+            this.aimessage(references_to_dom(referencesdirs.map(d => JSON.parse(d))));
           }
         });
       })
