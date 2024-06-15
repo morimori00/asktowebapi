@@ -436,7 +436,7 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         </div>`;
 
 const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-//const API_URL = "http://127.0.0.1:8000";
+// const API_URL = "http://127.0.0.1:8000";
 function generateRandomID() {
   let randomID = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -447,10 +447,12 @@ function generateRandomID() {
 }
 function references_to_dom(references) {
   let dom = l("message.reference");
+  let toolkit= l("tooltip.link");
   references.forEach(element => {
     data = element;
+    console.log(data);
     dom += `
-    <a class="source-link" href="${data["source"]}" target="_blank" data-tootik="${l("tooltip.link")}" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
+    <a class="source-link" href="${data["source"]}" target="_blank" data-tootik="${toolkit}" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
           <div style="background-image:url('https://www.google.com/s2/favicons?domain=${data["source"]}');" class="source-fav"></div>
           <div class="source-texts">
             <p class="source-title">${data["title"]}</p>
