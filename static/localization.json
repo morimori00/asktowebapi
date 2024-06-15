@@ -5,7 +5,8 @@
             "ready": "AI Support is Ready",
             "reset": "Reset Conversation",
             "send": "Send",
-            "close": "Close"
+            "close": "Close",
+            "link":"Open in new tab"
         },
         "message": {
             "hello": "Thank you for visiting our website. I will find the relevant page to your question.",
@@ -33,7 +34,8 @@
             "ready": "AIに質問する",
             "reset": "会話をリセット",
             "send": "送信",
-            "close": "閉じる"
+            "close": "閉じる",
+            "link":"新しいタブで開く"
         },
         "message": {
             "hello": "当サイトにお越しいただきありがとうございます。なにか質問があれば、関連するページを見つけてお答えいたします。",
@@ -61,7 +63,8 @@
             "ready": "AI支持已准备就绪",
             "reset": "重置对话",
             "send": "发送",
-            "close": "关闭"
+            "close": "关闭",
+            "link":"在新标签页中打开"
         },
         "message": {
             "hello": "感谢您访问我们的网站。我将为您找到相关页面。",
@@ -89,7 +92,8 @@
             "ready": "AI सहायता तैयार है",
             "reset": "वार्तालाप रीसेट करें",
             "send": "भेजें",
-            "close": "बंद करें"
+            "close": "बंद करें",
+            "link":"नए टैब में खोलें"
         },
         "message": {
             "hello": "हमारी वेबसाइट पर आने के लिए धन्यवाद। मैं आपके प्रश्न से संबंधित पृष्ठ ढूंढूंगा।",
@@ -117,7 +121,8 @@
             "ready": "Asistente de IA listo",
             "reset": "Reiniciar conversación",
             "send": "Enviar",
-            "close": "Cerrar"
+            "close": "Cerrar",
+            "link":"Abrir en nueva pestaña"
         },
         "message": {
             "hello": "Gracias por visitar nuestro sitio web. Encontraré la página relevante a su pregunta.",
@@ -145,7 +150,8 @@
             "ready": "Support IA prêt",
             "reset": "Réinitialiser la conversation",
             "send": "Envoyer",
-            "close": "Fermer"
+            "close": "Fermer",
+            "link":"Ouvrir dans un nouvel onglet"
         },
         "message": {
             "hello": "Merci d'avoir visité notre site web. Je trouverai la page pertinente à votre question.",
@@ -173,7 +179,8 @@
             "ready": "Suporte de IA pronto",
             "reset": "Reiniciar conversa",
             "send": "Enviar",
-            "close": "Fechar"
+            "close": "Fechar",
+            "link":"Abrir em nova guia"
         },
         "message": {
             "hello": "Obrigado por visitar nosso site. Vou encontrar a página relevante para sua pergunta.",
@@ -201,7 +208,8 @@
             "ready": "Supporto AI pronto",
             "reset": "Reimposta conversazione",
             "send": "Invia",
-            "close": "Chiudi"
+            "close": "Chiudi",
+            "link":"Apri in una nuova scheda"
         },
         "message": {
             "hello": "Grazie per aver visitato il nostro sito web. Troverò la pagina pertinente alla tua domanda.",
@@ -229,7 +237,8 @@
             "ready": "ИИ поддержка готова",
             "reset": "Сбросить разговор",
             "send": "Отправить",
-            "close": "Закрыть"
+            "close": "Закрыть",
+            "link":"Открыть в новой вкладке"
         },
         "message": {
             "hello": "Спасибо за посещение нашего сайта. Я найду нужную страницу для ответа на ваш вопрос.",
@@ -257,7 +266,8 @@
             "ready": "KI-Unterstützung bereit",
             "reset": "Konversation zurücksetzen",
             "send": "Senden",
-            "close": "Schließen"
+            "close": "Schließen",
+            "link":"In neuem Tab öffnen"
         },
         "message": {
             "hello": "Vielen Dank für den Besuch unserer Website. Ich werde die relevante Seite zu Ihrer Frage finden.",
@@ -285,7 +295,8 @@
             "ready": "AI Desteği Hazır",
             "reset": "Konuşmayı Sıfırla",
             "send": "Gönder",
-            "close": "Kapat"
+            "close": "Kapat",
+            "link":"Yeni sekmede aç"
         },
         "message": {
             "hello": "Web sitemizi ziyaret ettiğiniz için teşekkür ederiz. Sorunuzu yanıtlayacak ilgili sayfayı bulacağım.",
@@ -313,7 +324,8 @@
             "ready": "الدعم الذكي جاهز",
             "reset": "إعادة تعيين المحادثة",
             "send": "إرسال",
-            "close": "إغلاق"
+            "close": "إغلاق",
+            "link":"فتح في علامة تبويب جديدة"
         },
         "message": {
             "hello": "شكرًا لزيارتك لموقعنا. سأجد الصفحة ذات الصلة بسؤالك.",
