@@ -2,7 +2,7 @@
 from dotenv import load_dotenv
 
 # .envファイルの内容を読み込見込む
-load_dotenv()
+load_dotenv(override=True)
 
 from fastapi import FastAPI
 import uvicorn
@@ -25,6 +25,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings,ChatOpenAI
 import os
 index_name = os.environ.get("PINECONE_INDEX")
+print(index_name)
 embeddings = OpenAIEmbeddings()
 from langchain_core.prompts import ChatPromptTemplate
 import tiktoken
@@ -40,7 +41,6 @@ You are a sub-assistant who answers questions of website visitors.
 Given the user and assistant's conversation history and new user questions,
 You generate queries for contextual searches within the website that the assistant uses to generate answers to the user.
 Think about what information you need to answer the user's question and generate a query.
-If the latest user input is just Greetings or thanks (not a question or request), please write "null".
 The query should include the content of the user's question, plus at least two sentences guessing the content of the page where the answer is likely to be found.
 Generate only queries, do not write any other context.
 """
@@ -155,27 +155,25 @@ async def Askme(query,chat_history,website,sesstionId):
             print("Used documents:")
             print(jsonpatch_op.ops[0]["value"])
             if jsonpatch_op.ops[0]["value"]==[]:
-                references=""
+                referenced_links=[]
             else:
                 documents = [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in jsonpatch_op.ops[0]["value"]]
-                if len(documents) == 0:
-                    references = []
-                else:
-                    referenced_links=[]
-                    references=[]
+                referenced_links=[]
+                if len(documents) != 0:
                     for doc in documents:
                         if doc["metadata"]["source"] in referenced_links:
                             continue
-                        referenced_links.append(doc["metadata"]["source"])
-                        reference = f'<a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a>'
-                        result_dict={"type":"documents","value":reference}
-                        references.append(reference)
+                        # referenced_links.append(doc["metadata"]["source"])
+                        #reference = f'<a href="{doc["metadata"]["source"]}" target="_blank">{doc["metadata"]["title"]}</a>'
+                        reference_data={"title":doc["metadata"]["title"],"source":doc["metadata"]["source"],"discription":doc["page_content"][:50]}
+                        result_dict={"type":"documents","value":reference_data}
+                        referenced_links.append(json.dumps(reference_data))
                         yield f"data: {json.dumps(result_dict)}\n\n"
                 # {"type":"documents","value":[{"page_content":"~~","metadata":{"discription":"~","title":"~","source":"https://~"}}]}
-    if references=="":
+    if len(referenced_links)==0:
         chat_history.extend([{"type":"human","content":query},{"type":"ai","content":output.content}])
     else:
-        chat_history.extend([{"type":"human","content":query}, {"type":"ai","content":output.content}, {"type":"references","content":",".join(references)}])
+        chat_history.extend([{"type":"human","content":query}, {"type":"ai","content":output.content}, {"type":"references","content":"$".join(referenced_links)}])
     while len(tokenizer.encode(str(chat_history)))>1000:
             chat_history.pop(0)
     save_chat_history(chat_history, sesstionId)
