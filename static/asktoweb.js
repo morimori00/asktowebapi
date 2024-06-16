@@ -76,6 +76,9 @@ ASKTOWEB_ASSISTANT_DOM =
   /*background: #333;*/
   /* set background as blue cool gradinent */
   background: var(--primary-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transition: 0.3s;
   color: var(--secondary-color);
 }
@@ -109,6 +112,7 @@ ASKTOWEB_ASSISTANT_DOM =
   bottom: 100px;
   right: 30px;
   display: none;
+  line-height: normal;
 }
 
 .pic {
