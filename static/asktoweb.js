@@ -361,6 +361,7 @@ position:relative;
 .ask-to-website-chat .asktowebinput .ask-to-website-input-container > * {
 z-index: 0;
 min-height: 1.3rem;
+font-size: 1rem;
   line-height: 1.6em;
 }
 .ask-to-website-chat .asktowebinput .ask-to-website-hidden-input{
@@ -505,7 +506,7 @@ function references_to_dom(references ,answer) {
     data = element;
     console.log(data);
     dom += `
-    <a class="source-link" href="${data["source"]}" target="_blank" data-tootik="${toolkit}" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
+    <a class="source-link" href="${data["source"]}" rel=”noopener” target="_blank" data-tootik="${toolkit}" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
           <div style="background-image:url('https://www.google.com/s2/favicons?domain=${data["source"]}');" class="source-fav"></div>
           <div class="source-texts">
             <p class="source-title">${data["title"]}</p>
