@@ -39,6 +39,7 @@ llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 contextualize_q_system_prompt = """
 You are a sub-assistant who answers questions of website visitors.
 Given the user and assistant's conversation history and new user questions,
+Generate "It's greeting" or "It's thanks" when user input is a greeting or thank you.
 You generate queries for contextual searches within the website that the assistant uses to generate answers to the user.
 Think about what information you need to answer the user's question and generate a query.
 The query should include the content of the user's question, plus at least three sentences guessing the content of the page where the answer is likely to be found.
@@ -88,7 +89,6 @@ template="""
 INSTRUCTIONS:
 You are the assistant who answers the questions of the website visitors.
 Please tell the user the page and the part that contains the answer to the user's question.
-Generates null when user input is a greeting or thank you
 
 To indicate the referenced link, please write the source number in your response like this.
 [1] or [2] ... etc.
@@ -131,7 +131,7 @@ def chat_history_decode(chat_history_list):
     return chat_history
 
 def resize_chat_history(chat_history):
-    while len(tokenizer.encode(str(chat_history)))>1000:
+    while len(tokenizer.encode(str(chat_history)))>2000:
             chat_history.pop(0)
     return chat_history
 
@@ -179,7 +179,7 @@ async def Askme(query,chat_history,website,sesstionId):
     vectorstore = PineconeVectorStore(index_name=index_name, embedding=embeddings, namespace=website)
     retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.85,"k":5})
     def wrapedretriever(query):
-        if(query=="null"):
+        if "It's greeting" in query or "It's thanks" in query:
             print("No reference needed")
             return []
         return retriever.invoke(query)
