@@ -4,7 +4,7 @@ ASKTOWEB_ASSISTANT_DOM =
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
  <link rel="stylesheet" href="https://npmcdn.com/tootik@1.0.2/css/tootik.min.css">
 <div class="ask-to-website">
-<span data-tootik="AI Support is Ready" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
+<span data-tootik="" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
   <button id="ask-to-website-btn" class="ask-to-website-animation">
     <strong><i class="fas fa-spinner fa-spin"></i></strong>
     </button>
