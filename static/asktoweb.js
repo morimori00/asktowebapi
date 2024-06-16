@@ -252,7 +252,7 @@ ASKTOWEB_ASSISTANT_DOM =
     transform: rotate(360deg);
   }
 } 
-.chat .messages .message.mankind {
+.ask-to-website-chat .messages .message.mankind {
   margin: 1rem 1rem 1rem auto;
   border-radius: 1.125rem 1.125rem 0 1.125rem;
   background: #333;
