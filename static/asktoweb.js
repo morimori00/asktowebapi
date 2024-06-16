@@ -11,8 +11,8 @@ ASKTOWEB_ASSISTANT_DOM =
     </span>
 </div>
 
-<div class="center" id="ask-to-website-win">
-  <div class="chat">
+<div class="ask-to-website-center" id="ask-to-website-win">
+  <div class="ask-to-website-chat">
     <div class="contact bar">
       <button class="closebtn" data-tootik="Close" data-tootik-conf="no-arrow shadow delay" id="ask-to-website-close-btn">
         <i class="fas fa-times"></i>
@@ -62,7 +62,7 @@ ASKTOWEB_ASSISTANT_DOM =
   font-weight: 400;
   line-height: 1.25em;
   letter-spacing: 0.025em;
-  z-index: 1000;
+  z-index: 99000;
   --primary-color: black;
   --secondary-color: #fff;
 }
@@ -92,7 +92,7 @@ ASKTOWEB_ASSISTANT_DOM =
   box-shadow: 7px 5px 56px -10px #777;
 }
 
-.chat button:disabled {
+.ask-to-website-chat button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -107,12 +107,14 @@ ASKTOWEB_ASSISTANT_DOM =
   outline: inherit;
 }
 
-.center {
+.ask-to-website-center {
   position: fixed;
   bottom: 100px;
   right: 30px;
   display: none;
   line-height: normal;
+  z-index:99999999999;
+  box-sizing: unset;
 }
 
 .pic {
@@ -180,7 +182,7 @@ ASKTOWEB_ASSISTANT_DOM =
   color: white;
 }
 
-.chat {
+.ask-to-website-chat {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -193,13 +195,13 @@ ASKTOWEB_ASSISTANT_DOM =
   background: white;
   box-shadow: 0 0 8rem 0 rgba(0, 0, 0, 0.1), 0rem 2rem 4rem -3rem rgba(0, 0, 0, 0.5);
 }
-.chat .contact.bar {
+.ask-to-website-chat .contact.bar {
   flex-basis: 3.5rem;
   flex-shrink: 0;
   margin: 1rem;
   box-sizing: border-box;
 }
-.chat .messages {
+.ask-to-website-chat .messages {
   padding: 1rem;
   background: #f7f7f7;
   flex-shrink: 2;
@@ -207,7 +209,7 @@ ASKTOWEB_ASSISTANT_DOM =
   min-height: 25.5rem;
   box-shadow: inset 0 2rem 2rem -2rem rgba(0, 0, 0, 0.05), inset 0 -2rem 2rem -2rem rgba(0, 0, 0, 0.05);
 }
-.chat .messages .time {
+.ask-to-website-chat .messages .time {
   font-size: 0.8rem;
   background: #eee;
   padding: 0.25rem 1rem;
@@ -216,7 +218,7 @@ ASKTOWEB_ASSISTANT_DOM =
   width: fit-content;
   margin: 0 auto;
 }
-.chat .messages .message {
+.ask-to-website-chat .messages .message {
   box-sizing: border-box;
   position: relative;
   padding: 0.5rem 1rem;
@@ -228,7 +230,7 @@ ASKTOWEB_ASSISTANT_DOM =
   max-width: 75%;
   box-shadow: 0 0 2rem rgba(0, 0, 0, 0.075), 0rem 1rem 1rem -1rem rgba(0, 0, 0, 0.1);
 }
-.chat .messages .message.verifying::after{
+.ask-to-website-chat .messages .message.verifying::after{
   content:"";
   position:absolute;
   width:15px;
@@ -275,12 +277,12 @@ ASKTOWEB_ASSISTANT_DOM =
   background-size:contain;
   border-radius:5px;
 }
-.chat .message .source-link .source-texts{
+.ask-to-website-chat .message .source-link .source-texts{
   width:calc(100% - 2rem - 10px);
   padding:0;
   margin-left:10px;
 }
-.chat .message .source-link .source-texts .source-title{
+.ask-to-website-chat .message .source-link .source-texts .source-title{
   padding:0;
   margin:0;
   font-size:.8rem;
@@ -288,7 +290,7 @@ ASKTOWEB_ASSISTANT_DOM =
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.chat .message .source-link .source-texts .source-discription{
+.ask-to-website-chat .message .source-link .source-texts .source-discription{
   padding:0;
   margin:0;
   font-size:.6rem;
@@ -297,7 +299,7 @@ ASKTOWEB_ASSISTANT_DOM =
     white-space: nowrap;
   line-height: .9;
 }
-.chat .messages .message .typing {
+.ask-to-website-chat .messages .message .typing {
   display: inline-block;
   width: 0.8rem;
   height: 0.8rem;
@@ -306,16 +308,16 @@ ASKTOWEB_ASSISTANT_DOM =
   background: #ccc;
   border-radius: 50%;
 }
-.chat .messages .message .typing.typing-1 {
+.ask-to-website-chat .messages .message .typing.typing-1 {
   animation: typing 3s infinite;
 }
-.chat .messages .message .typing.typing-2 {
+.ask-to-website-chat .messages .message .typing.typing-2 {
   animation: typing 3s 250ms infinite;
 }
-.chat .messages .message .typing.typing-3 {
+.ask-to-website-chat .messages .message .typing.typing-3 {
   animation: typing 3s 500ms infinite;
 }
-.chat .asktowebpost {
+.ask-to-website-chat .asktowebpost {
     flex-shrink: 0;
     display: inline-flex;
     justify-content: center;
@@ -323,7 +325,7 @@ ASKTOWEB_ASSISTANT_DOM =
     width: 3em;
     height: 3em;
 }
-.chat .asktowebinput {
+.ask-to-website-chat .asktowebinput {
   box-sizing: border-box;
   flex-basis: 4rem;
   flex-shrink: 0;
@@ -335,41 +337,43 @@ ASKTOWEB_ASSISTANT_DOM =
     justify-content: space-between;
     gap: 5px;
 }
-.chat .messages .message .loader-text {
+.ask-to-website-chat .messages .message .loader-text {
   font-style: italic;
   font-size: 0.7rem;
   color: #777;
   width:80px;
   height:0.7rem;
 }
-.chat .asktowebinput i {
+.ask-to-website-chat .asktowebinput i {
   font-size: 1.5rem;
   color: var(--primary-color);
   opacity: 0.7;
   cursor: inherit;
   transition: color 200ms;
 }
-.chat .asktowebinput i:hover {
+.ask-to-website-chat .asktowebinput i:hover {
   opacity: 1;
 }
-.chat .asktowebinput .ask-to-website-input-container{
+.ask-to-website-chat .asktowebinput .ask-to-website-input-container{
 width:100%;
 position:relative;
 }
-.chat .asktowebinput .ask-to-website-input-container > * {
+.ask-to-website-chat .asktowebinput .ask-to-website-input-container > * {
 z-index: 0;
 min-height: 1.3rem;
+  line-height: 1.6em;
 }
-.chat .asktowebinput .ask-to-website-hidden-input{
+.ask-to-website-chat .asktowebinput .ask-to-website-hidden-input{
   width:calc(100% - 2rem);
   white-space: pre-wrap;
   word-wrap: break-word;
   height:auto;
   padding: 0.5rem 1rem;
   opacity: 0;
+  box-sizing: unset;
   max-height: 6.5rem;
 }
-.chat .asktowebinput textarea {
+.ask-to-website-chat .asktowebinput textarea {
   position: absolute;
   border: none;
   background-image: none;
@@ -394,10 +398,10 @@ min-height: 1.3rem;
   bottom: 0;
   z-index: 1;
 }
-.chat .asktowebinput textarea:focus {
+.ask-to-website-chat .asktowebinput textarea:focus {
   border:solid 1px #444;
 }
-.chat .asktowebinput textarea:placeholder {
+.ask-to-website-chat .asktowebinput textarea:placeholder {
   color: #999;
 }
 .message ol{
@@ -463,7 +467,7 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         </div>`;
 
 const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-//const API_URL = "http://127.0.0.1:8000";
+// const API_URL = "http://127.0.0.1:8000";
 function generateRandomID() {
   let randomID = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
