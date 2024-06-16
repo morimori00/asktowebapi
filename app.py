@@ -38,10 +38,11 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 contextualize_q_system_prompt = """
 You are a sub-assistant who answers questions of website visitors.
+If user input is not a question, but a greeting, generate simply "null"
 Given the user and assistant's conversation history and new user questions,
 You generate queries for contextual searches within the website that the assistant uses to generate answers to the user.
 Think about what information you need to answer the user's question and generate a query.
-The query should include the content of the user's question, plus at least two sentences guessing the content of the page where the answer is likely to be found.
+The query should include the content of the user's question, plus at least three sentences guessing the content of the page where the answer is likely to be found.
 Generate only queries, do not write any other context.
 """
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
@@ -55,18 +56,37 @@ contextualize_q_chain = (contextualize_q_prompt | llm | StrOutputParser()).with_
     tags=["contextualize_q_chain"]
 )
 
-template = """
-        INSTRUCTIONS:
-        You are the assistant who answers the questions of the visitors to the website.
-        Answer the users QUESTION using the CONTEXT from the websute text above.
-        Keep your answer ground in the facts of the CONTEXT. Do not provide any information that is not supported by the CONTEXT.
+# template = """
+#         INSTRUCTIONS:
+#         You are the assistant who answers the questions of the visitors to the website.
+#         Answer the users QUESTION using the CONTEXT from the websute text above.
+#         Keep your answer ground in the facts of the CONTEXT. Do not provide any information that is not supported by the CONTEXT.
         
-        NOTE:
-        The context provided is only part of the page of the website searched, and the information the user is seeking may be found elsewhere on the page.
+#         NOTE:
+#         The context provided is only part of the page of the website searched, and the information the user is seeking may be found elsewhere on the page.
 
-        CONTEXT:
-        {context}
-        """
+#         CONTEXT:
+#         {context}
+#         """
+template="""
+INSTRUCTIONS:
+You are the assistant who answers the questions of the website visitors.
+Please tell the user the page and the part that contains the answer to the user's question.
+
+
+To indicate the referenced link, please write the source number in your response like this.
+[1] or [2] ... etc.
+
+If sufficient information is not included in the context, please use the examples below to answer the question.
+*That information may not appear on this website. Please check the following highly relevant pages.*
+
+NOTE:
+The context provided is only part of the page of the website searched, and the information the user is seeking may be found elsewhere on the page.
+Answer in the same language as the user's question text.
+
+CONTEXT:
+{context}
+"""
 qa_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", template),
@@ -94,6 +114,11 @@ def chat_history_decode(chat_history_list):
         
     return chat_history
 
+def resize_chat_history(chat_history):
+    while len(tokenizer.encode(str(chat_history)))>1000:
+            chat_history.pop(0)
+    return chat_history
+
 def save_chat_history(chat_history_list, session_id):
     jsondata=json.dumps(chat_history_list)
     # Save the chat history to a json file
@@ -118,14 +143,20 @@ def printme(input):
 def format_docs(docs):
     if docs == []:
         return "This user's question is one that does not require context for an answer."
-    return "\n\n".join(doc.page_content for doc in docs)
+    res=""
+    for i in range(len(docs)):
+        res+="Source "+ str(i+1) +" ("+docs[i].metadata["source"]+")\n"
+        res+=docs[i].metadata["title"]+"\n"
+        res+=docs[i].page_content
+        res+="\n\n"
+    return res
 
 tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
 async def Askme(query,chat_history,website,sesstionId):
     ct = 0
     output = {}
     vectorstore = PineconeVectorStore(index_name=index_name, embedding=embeddings, namespace=website)
-    retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.85,"k":3})
+    retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.85,"k":5})
     def wrapedretriever(query):
         if(query=="null"):
             print("No reference needed")
@@ -139,7 +170,7 @@ async def Askme(query,chat_history,website,sesstionId):
     )
     references=""
     async for jsonpatch_op in rag_chain.astream_log(
-        {"question": query, "chat_history": chat_history_decode(chat_history)},
+        {"question": query, "chat_history": resize_chat_history(chat_history_decode(chat_history))},
         include_names=["wrapedretriever"],
         with_streamed_output_list=False,
     ):  
@@ -174,8 +205,7 @@ async def Askme(query,chat_history,website,sesstionId):
         chat_history.extend([{"type":"human","content":query},{"type":"ai","content":output.content}])
     else:
         chat_history.extend([{"type":"human","content":query}, {"type":"ai","content":output.content}, {"type":"references","content":"$".join(referenced_links)}])
-    while len(tokenizer.encode(str(chat_history)))>1000:
-            chat_history.pop(0)
+        #chat_history.extend([{"type":"human","content":query},{"type":"ai","content":output.content}])
     save_chat_history(chat_history, sesstionId)
     result_dict={"type":"history","value":sesstionId}
     yield f"data: {json.dumps(result_dict)}\n\n"
