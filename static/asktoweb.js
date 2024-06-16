@@ -445,10 +445,31 @@ function generateRandomID() {
   }
   return randomID;
 }
-function references_to_dom(references) {
+function extractNumbers(str) {
+  // 正規表現を使って、[]で囲まれた数字を抽出
+  const regex = /\[(.*?)\]/g;
+  const matches = str.matchAll(regex);
+
+  // 抽出した数字を配列に格納
+  const numbers = [];
+  for (const match of matches) {
+    numbers.push(parseInt(match[1]));
+  }
+
+  return numbers;
+}
+function references_to_dom(references ,answer) {
   let dom = l("message.reference");
   let toolkit= l("tooltip.link");
+  refs= extractNumbers(answer)
+  if(refs.length==0){
+      refs=[...Array(references.length).keys()]
+  }
   references.forEach(element => {
+    const indexNo=references.indexOf(element)
+    if(!refs.includes(indexNo+1)){
+      return;
+    }
     data = element;
     console.log(data);
     dom += `
@@ -464,8 +485,6 @@ function references_to_dom(references) {
   return dom;
 }
 
-console.log(generateRandomID());
-//const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev/";
 //Save sesstionId in localstrage and get it
 function get_sesstionId() {
   //IF sesstionId is not exist, create new sesstionId
@@ -558,10 +577,11 @@ class ASKTOWEB_ASSISTANT {
           if (element.type == "human") {
             this.humanmessage(element.content);
           } else if (element.type == "ai") {
-            this.aimessage(element.content);
+            this.currentaimessage= this.aimessage(element.content);
           } else if (element.type == "references") {
             const referencesdirs=element.content.split("$")
-            this.aimessage(references_to_dom(referencesdirs.map(d => JSON.parse(d))));
+            this.aimessage(references_to_dom(referencesdirs.map(d => JSON.parse(d)),this.currentaimessage.innerText));
+            this.refinanswer(this.currentaimessage, referencesdirs.map(d => JSON.parse(d)));
           }
         });
       })
@@ -586,7 +606,8 @@ class ASKTOWEB_ASSISTANT {
     this.postbtn.disabled = false;
     this.resetbtn.disabled = false;
     if (references.length == 0) { return; }
-    this.aimessage(references_to_dom(references));
+    this.aimessage(references_to_dom(references,this.currentaimessage.innerText));
+    this.refinanswer(this.currentaimessage, references);
   }
   humanmessage(text) {
     this.resetbtn.disabled = false;
@@ -651,6 +672,22 @@ class ASKTOWEB_ASSISTANT {
   endstreaming() {
     this.streamingflg = false;
   }
+  refinanswer(messageelem, references) {
+    let contentHTML = messageelem.innerHTML;
+    let n=1;
+    let toolkit= l("tooltip.link");
+    references.forEach((link, index) => {
+      const placeholder = `\\[${index + 1}\\]`; // 正規表現で使用するためエスケープする
+      const anchorTag = `<a href="${link['source']}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${link['source']}',true)" onmouseout="referenceHover('${link['source']}',false)" >[${n}]</a>`;
+      const regex = new RegExp(placeholder, 'g'); // 全ての出現箇所を置換するため'g'フラグを付ける
+      //regexが存在する場合は、nを増やす
+      if (contentHTML.match(regex)) {
+        n++;
+      contentHTML = contentHTML.replace(regex, anchorTag);
+      }
+    });
+    messageelem.innerHTML = contentHTML;
+  }
   addloader() {
     const loading = document.getElementById("asktoweb-message-loader");
     if (!loading) { this.chat.innerHTML += ASKTOWEB_ASSISTANT_TYPING_DOM; }
@@ -700,6 +737,15 @@ class ASKTOWEB_ASSISTANT {
 
 }
 
+function referenceHover(url, flg) {
+  //find element which has url in href and .source-link class
+  const elements = document.querySelectorAll(`.source-link[href="${url}"]`);
+  elements.forEach(element => {
+    //elementを光らせる
+    if (flg) element.style.backgroundColor = "#f0f0f0";
+    else element.style.backgroundColor = "white";
+  });
+}
 // Function to fetch the JSON data
 async function fetchJsonData() {
   try {
@@ -744,8 +790,10 @@ const l = (key) => {
   return res;
 }
 var references = [];
+var finalanswer=""
 async function FetchAPI(query, myaimessage, fn, errormessage) {
   references = [];
+  finalanswer="";
   fetch(API_URL + "/stream", {
     method: "POST",
     headers: {
@@ -784,6 +832,7 @@ async function FetchAPI(query, myaimessage, fn, errormessage) {
             console.log(`Received: ${data.value}`);
             if (data.type == "text") {
               myaimessage(data.value);
+              finalanswer=data.value;
             } else if (data.type == "documents") {
               references.push(data.value);
             }
