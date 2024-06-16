@@ -131,7 +131,7 @@ def chat_history_decode(chat_history_list):
     return chat_history
 
 def resize_chat_history(chat_history):
-    while len(tokenizer.encode(str(chat_history)))>2000:
+    while len(tokenizer.encode(str(chat_history)))>1500:
             chat_history.pop(0)
     return chat_history
 
