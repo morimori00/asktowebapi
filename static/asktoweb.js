@@ -214,6 +214,7 @@ ASKTOWEB_ASSISTANT_DOM =
 }
 .chat .messages .message {
   box-sizing: border-box;
+  position: relative;
   padding: 0.5rem 1rem;
   margin: 1rem;
   background: #fff;
@@ -223,6 +224,28 @@ ASKTOWEB_ASSISTANT_DOM =
   max-width: 75%;
   box-shadow: 0 0 2rem rgba(0, 0, 0, 0.075), 0rem 1rem 1rem -1rem rgba(0, 0, 0, 0.1);
 }
+.chat .messages .message.verifying::after{
+  content:"";
+  position:absolute;
+  width:15px;
+  height:15px;
+  right:-25px;
+  bottom:5px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #777;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 
 .chat .messages .message.mankind {
   margin: 1rem 1rem 1rem auto;
   border-radius: 1.125rem 1.125rem 0 1.125rem;
@@ -435,8 +458,8 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         <div class="loader-text"><marquee scrollamount="3">Searching infomation from website...</marquee></div>
         </div>`;
 
-const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-// const API_URL = "http://127.0.0.1:8000";
+// const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
+const API_URL = "http://127.0.0.1:8000";
 function generateRandomID() {
   let randomID = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -542,7 +565,7 @@ class ASKTOWEB_ASSISTANT {
     this.humanmessage(text);
     this.addloader();
     this.sclchat();
-    FetchAPI(text, this.streamingaimessage.bind(this), this.addrefecenses.bind(this), this.errormessage.bind(this));
+    FetchAPI(text, this.streamingaimessage.bind(this), this.addrefecenses.bind(this), this.errormessage.bind(this), this.verify.bind(this));
   }
   initchathistory() {
     this.resetbtn.disabled = true;
@@ -643,7 +666,7 @@ class ASKTOWEB_ASSISTANT {
       const loading = document.getElementById("asktoweb-message-loader");
       if (loading) { loading.remove(); }
       let message = document.createElement('div');
-      message.classList.add('message', 'robot');
+      message.classList.add('message', 'robot',"verifying");
       message.innerText = text;
       this.chat.appendChild(message);
       this.sclchat();
@@ -705,6 +728,13 @@ class ASKTOWEB_ASSISTANT {
         }, 10000);
       }, 6000);
     }, 7000);
+  }
+  verify(verify_result){
+    console.log("verify"+verify_result);
+    this.currentaimessage.classList.remove("verifying");
+    if(verify_result!="null"){
+        this.currentaimessage.innerHTML=verify_result;
+    }
   }
   openaskwin() {
     if (this.openflg == 1) {
@@ -791,7 +821,7 @@ const l = (key) => {
 }
 var references = [];
 var finalanswer=""
-async function FetchAPI(query, myaimessage, fn, errormessage) {
+async function FetchAPI(query, myaimessage, fn, errormessage,verifyfn) {
   references = [];
   finalanswer="";
   fetch(API_URL + "/stream", {
@@ -838,6 +868,9 @@ async function FetchAPI(query, myaimessage, fn, errormessage) {
             }
             else if (data.type == "history") {
 
+            } else if (data.type == "verify") {
+                const verify_result = data.value;
+                verifyfn(verify_result);
             }
 
           }
