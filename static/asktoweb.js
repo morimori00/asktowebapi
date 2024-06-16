@@ -423,7 +423,8 @@ min-height: 1.3rem;
 .pic.robot {
   /*background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");*/
   /*background-image: url("https://i.ibb.co/pbWCkhM/1.png");*/
-  background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");
+  /*background-image: url("https://i.ibb.co/VvZmGxw/2024-06-17-081619.png");*/
+  background-image: url("https://i.ibb.co/D44kXwy/2024-06-17-082934.png");
 }
 
 @keyframes fadeInUp {
