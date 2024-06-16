@@ -38,7 +38,6 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 contextualize_q_system_prompt = """
 You are a sub-assistant who answers questions of website visitors.
-If user input is not a question, but a greeting, generate simply "null"
 Given the user and assistant's conversation history and new user questions,
 You generate queries for contextual searches within the website that the assistant uses to generate answers to the user.
 Think about what information you need to answer the user's question and generate a query.
@@ -55,6 +54,23 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages(
 contextualize_q_chain = (contextualize_q_prompt | llm | StrOutputParser()).with_config(
     tags=["contextualize_q_chain"]
 )
+
+verify_system_prompt = """
+You are a verifier who does not tolerate rigid and ambiguous answers.
+Given the ai assistant's answer, check for consistency with the context below.
+If you find information in the assistant's answer that is not included in the context, you must remove it and generate a new, accurate answer.
+After verifying, generate "null"
+
+CONTEXT:
+{context}
+"""
+verify_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", verify_system_prompt),
+        ("human", "{answer}"),
+    ]
+)
+verify_a_chain = (verify_prompt | llm | StrOutputParser()).with_config(tags=["verify_chain"])
 
 # template = """
 #         INSTRUCTIONS:
@@ -134,10 +150,7 @@ def load_chat_history(session_id):
     return [json.loads(jsondata) , date]
 
 def printme(input):
-    if input=="null":
-        print(input)
-    else:
-        print(input)
+    print(input)
     return input
 
 def format_docs(docs):
@@ -150,7 +163,15 @@ def format_docs(docs):
         res+=docs[i].page_content
         res+="\n\n"
     return res
-
+def format_docs_light(docs):
+    if docs == []:
+        return "This user's question is one that does not require context for an answer."
+    res=""
+    for i in range(len(docs)):
+        res+="Source "+ str(i+1) +" ("+docs[i].metadata["source"]+")\n"
+        res+=docs[i].page_content
+        res+="\n\n"
+    return res
 tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
 async def Askme(query,chat_history,website,sesstionId):
     ct = 0
@@ -168,7 +189,7 @@ async def Askme(query,chat_history,website,sesstionId):
      | qa_prompt
      | llm
     )
-    references=""
+    context=""
     async for jsonpatch_op in rag_chain.astream_log(
         {"question": query, "chat_history": resize_chat_history(chat_history_decode(chat_history))},
         include_names=["wrapedretriever"],
@@ -176,6 +197,9 @@ async def Askme(query,chat_history,website,sesstionId):
     ):  
         print(jsonpatch_op.ops[0])
         if jsonpatch_op.ops[0]["path"] == "/final_output":
+            response_metadata = getattr(jsonpatch_op.ops[0]['value'], 'response_metadata', None)
+            if response_metadata and response_metadata.get('finish_reason') == 'stop':
+                    yield "data: {\"preend\": true}\n\n"
             output = jsonpatch_op.ops[0]["value"]
             #print(output.content, flush=True)
             result_dict = {"type":"text","value":output.content}
@@ -185,6 +209,7 @@ async def Askme(query,chat_history,website,sesstionId):
             print("\n" + "-" * 30 + "\n")
             print("Used documents:")
             print(jsonpatch_op.ops[0]["value"])
+            context = jsonpatch_op.ops[0]["value"]
             if jsonpatch_op.ops[0]["value"]==[]:
                 referenced_links=[]
             else:
@@ -206,9 +231,22 @@ async def Askme(query,chat_history,website,sesstionId):
     else:
         chat_history.extend([{"type":"human","content":query}, {"type":"ai","content":output.content}, {"type":"references","content":"$".join(referenced_links)}])
         #chat_history.extend([{"type":"human","content":query},{"type":"ai","content":output.content}])
+    #then, verify the answer
+    if len(context)==0:
+        verify_result= verify_a_chain.invoke({"answer":output.content,"context":"null\n\n There is no context for this conversation. If the assistant's response makes up a fact, please rewrite it."})
+        verify_result_dict={"type":"verify","value":verify_result}
+        print("verify_result:"+verify_result)
+        yield f"data: {json.dumps(verify_result_dict)}\n\n"
+    else:
+        verify_result= verify_a_chain.invoke({"answer":output.content,"context":format_docs_light(context)})
+        verify_result_dict={"type":"verify","value":verify_result}
+        print("verify_result:"+verify_result)
+        yield f"data: {json.dumps(verify_result_dict)}\n\n"
     save_chat_history(chat_history, sesstionId)
     result_dict={"type":"history","value":sesstionId}
     yield f"data: {json.dumps(result_dict)}\n\n"
+    
+    
     yield "data: {\"end\": true}\n\n"
 
 @app.get("/")
