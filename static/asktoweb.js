@@ -667,7 +667,7 @@ class ASKTOWEB_ASSISTANT {
   currentaimessage;
   streamingflg = false;
   streamingaimessage(text) {
-    //console.log(text);
+    console.log("streaming:"+text);
     if (this.streamingflg) {
       this.currentaimessage.innerText = text;
     } else {
@@ -740,8 +740,10 @@ class ASKTOWEB_ASSISTANT {
   verify(verify_result){
     console.log("verify"+verify_result);
     this.currentaimessage.classList.remove("verifying");
-    if(verify_result!="null"){
-        this.currentaimessage.innerHTML=verify_result;
+    if(verify_result.toString().includes("null") || verify_result.toString().includes("Null") || verify_result.toString().includes("NULL")){
+        
+    }else{
+      this.currentaimessage.innerHTML=verify_result;
     }
   }
   openaskwin() {
