@@ -469,7 +469,7 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         </div>`;
 
 const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-//const API_URL = "http://127.0.0.1:8000";
+// const API_URL = "http://127.0.0.1:8000";
 const SUPPORT_LINK="https://asktoweb.ai/support";
 function generateRandomID() {
   let randomID = "";
@@ -684,7 +684,7 @@ class ASKTOWEB_ASSISTANT {
       if (loading) { loading.remove(); }
       let message = document.createElement('div');
       message.classList.add('message', 'robot',"verifying");
-      message.innerText = text;
+      message.innerHTML = text;
       this.chat.appendChild(message);
       this.sclchat();
       this.currentaimessage = message;
