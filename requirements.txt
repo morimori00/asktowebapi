@@ -10,3 +10,4 @@ pinecone-client==3.2.2
 tiktoken==0.7.0
 openai==1.32.0
 supabase==2.5.0
+tenacity
