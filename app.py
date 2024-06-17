@@ -42,7 +42,7 @@ Given the user and assistant's conversation history and new user questions,
 Generate "It's greeting" or "It's thanks" when user input is a greeting or thank you.
 You generate queries for contextual searches within the website that the assistant uses to generate answers to the user.
 Think about what information you need to answer the user's question and generate a query.
-The query should include the content of the user's question, plus at least three sentences guessing the content of the page where the answer is likely to be found.
+The query should include the content of the user's question, plus at least two sentences guessing the content of the page where the answer is likely to be found.
 Generate only queries, do not write any other context.
 """
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
@@ -61,6 +61,7 @@ You are a verifier who does not tolerate rigid and ambiguous answers.
 Given the ai assistant's answer, check for consistency with the context below.
 If you find information in the assistant's answer that is not included in the context, you must remove it and generate a new, accurate answer.
 If everything is perfect, generate "ok".
+Answer in the same language as the assistant's answer.
 
 CONTEXT:
 {context}
