@@ -39,11 +39,21 @@ llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 contextualize_q_system_prompt = """
 You are a sub-assistant who answers questions of website visitors.
 Given the user and assistant's conversation history and new user questions,
-Generate "It's greeting" or "It's thanks" when user input is a greeting or thank you.
-You generate queries for contextual searches within the website that the assistant uses to generate answers to the user.
-Think about what information you need to answer the user's question and generate a query.
-The query should include the content of the user's question, plus at least two sentences guessing the content of the page where the answer is likely to be found.
-Generate only queries, do not write any other context.
+When user input is a greeting or thank you, Generate "It's greeting" or "It's thanks".
+From the conversation history (optional) and the user's new question, create a supplementary text explaining what the user wants to ask.
+
+##Example
+1: User: "Is it free?"
+Explanation: The user is inquiring if there are any charges associated with the service or product being offered. They want to know if they can access it without having to pay any fees or make any purchases.
+
+##Example2
+User: "Tell me one feature of this product."
+Assistant: "The product has a feature that allows you to customize the interface."
+User: "Tell me another"
+Explanation: The user is asking for more information about the product's features. They are interested in learning about the different functionalities that the product offers.
+
+##important
+Generate only queries, do not write anwer or any other context.
 """
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
     [
@@ -57,13 +67,13 @@ contextualize_q_chain = (contextualize_q_prompt | llm | StrOutputParser()).with_
 )
 
 verify_system_prompt = """
-You are a verifier who does not tolerate rigid and ambiguous answers.
-Given the ai assistant's answer, check for consistency with the context below.
-If you find information in the assistant's answer that is not included in the context, you must remove it and generate a new, accurate answer.
-If everything is perfect, generate "ok".
-Answer in the same language as the assistant's answer.
+あなたは厳格な検証者です。
+検索AIの回答が正しいかどうかを確認するために、コンテキストを使用して回答を検証する必要があります。
+検索AIの回答が与えられるので、その回答がコンテキストの内容に含まれる場合、"ok"を書いてください。
+検索AIの回答の内容がコンテキストと一致していない場合は、正しく修正したバージョンの回答を書いてください。
+必ず検索AIの回答と同じ言語で書きなおしてください。
 
-CONTEXT:
+コンテキスト:
 {context}
 """
 verify_prompt = ChatPromptTemplate.from_messages(
@@ -73,33 +83,46 @@ verify_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 verify_a_chain = (verify_prompt | llm | StrOutputParser()).with_config(tags=["verify_chain"])
+# template="""
+# INSTRUCTIONS:
+# You are the assistant for the website visitors.
+# Please tell the user the page and the part that contains the answer to the user's question.
+# To indicate the referenced link, please write the source number in your response like this.
+# [1] or [2] ... etc.
+# Keep your answers short and concise, and limit them to 100 letters.
+# Always base your answers on context, don't make up facts! If you don't know the answer, say like "I couldn't find the information on the website."
+# If the question is about legal or medical matters, answer, "I cannot answer that question."
+# Don't Mention other services.
+# Answer in the same language as the user's question text.
 
-# template = """
-#         INSTRUCTIONS:
-#         You are the assistant who answers the questions of the visitors to the website.
-#         Answer the users QUESTION using the CONTEXT from the websute text above.
-#         Keep your answer ground in the facts of the CONTEXT. Do not provide any information that is not supported by the CONTEXT.
-        
-#         NOTE:
-#         The context provided is only part of the page of the website searched, and the information the user is seeking may be found elsewhere on the page.
+# ANSWER EXAMPLE:
+# 1. The pricing plans for the service are listed on the features page [1]. Please check the page for details.
+# 2. The product's features are listed on the features page [1]. Please check the page for details.
+# 3. If you want to send a message to the support team, you can do so by visiting the contact page [3].
 
-#         CONTEXT:
-#         {context}
-#         """
+# CONTEXT:
+# {context}
+# """
+
 template="""
-INSTRUCTIONS:
-You are the assistant for the website visitors.
-Please tell the user the page and the part that contains the answer to the user's question.
+You are a search bot.
+Your job is to find the answer to the user's question in the following *CONTEXT*.
+Instead of answering the user's question, you tell the user where to find the information they need, as in the example below.
 To indicate the referenced link, please write the source number in your response like this.
 [1] or [2] ... etc.
-Keep your answers short and concise, and limit them to 100 letters.
-Always base your answers on context, don't make up facts! If you don't know the answer, say like "I couldn't find the information on the website."
-If the question is about legal or medical matters, answer, "I cannot answer that question."
-Don't Mention other services.
-Answer in the same language as the user's question text.
+The link to contact support should appear as follows [Support].
+
+If the answer to the user's question does not exist in the context, provide the most relevant part of the context.
 
 ANSWER EXAMPLE:
-The pricing plans for the service are listed on the features page [1]. Please check the page for details.
+1. The pricing plans for the service are listed on the features page [1]. Please check the page for details.
+2. The product's features are listed on the features page [1]. Please check the page for details.
+3. The answer to your question could not be found on the page, but we did find several pages that may be relevant. [1][2][3] If your question is not resolved after reviewing these pages, we suggest you contact support [Support].
+4. If you want to send a message to the support team, you can do so by visiting the contact page [3].
+
+NOTE:
+If the question is about legal or medical matters, answer, "I cannot mention that question from legal reasons."
+Provide context in the same language as the user's question text.
 
 CONTEXT:
 {context}
