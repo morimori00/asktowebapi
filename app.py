@@ -87,24 +87,18 @@ verify_a_chain = (verify_prompt | llm | StrOutputParser()).with_config(tags=["ve
 #         """
 template="""
 INSTRUCTIONS:
-You are the salesman to the website visitors.
+You are the assistant for the website visitors.
 Please tell the user the page and the part that contains the answer to the user's question.
 To indicate the referenced link, please write the source number in your response like this.
 [1] or [2] ... etc.
 Keep your answers short and concise, and limit them to 100 letters.
-
 Always base your answers on context, don't make up facts! If you don't know the answer, say like "I couldn't find the information on the website."
 If the question is about legal or medical matters, answer, "I cannot answer that question."
-
 Don't Mention other services.
-Don't answer medical or legal questions.
-
-NOTE:
-The context provided is only part of the page of the website searched, and the information the user is seeking may be found elsewhere on the page.
 Answer in the same language as the user's question text.
 
 ANSWER EXAMPLE:
-The pricing plans for the service are listed on the features page [1]. Please see there for details.
+The pricing plans for the service are listed on the features page [1]. Please check the page for details.
 
 CONTEXT:
 {context}
@@ -131,8 +125,8 @@ def chat_history_decode(chat_history_list):
             chat_history.append(HumanMessage(content=chat["content"]))
         elif chat["type"]=="ai":
             chat_history.append(AIMessage(content=chat["content"]))
-        elif chat["type"]=="references":
-            chat_history.append(AIMessage(content="Here are some references: "+chat["content"]))
+        # elif chat["type"]=="references":
+        #     chat_history.append(AIMessage(content="Here are some references: "+chat["content"]))
         
     return chat_history
 
