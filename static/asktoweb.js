@@ -351,6 +351,10 @@ ASKTOWEB_ASSISTANT_DOM =
   cursor: inherit;
   transition: color 200ms;
 }
+  .ask-to-website-support-link{
+    color: blue;
+    text-decoration:underline;  
+}
 .ask-to-website-chat .asktowebinput i:hover {
   opacity: 1;
 }
@@ -469,7 +473,7 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         </div>`;
 
 const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-// const API_URL = "http://127.0.0.1:8000";
+//const API_URL = "http://127.0.0.1:8000";
 const SUPPORT_LINK="https://asktoweb.ai/support";
 function generateRandomID() {
   let randomID = "";
@@ -494,7 +498,7 @@ function extractNumbers(str) {
 }
 function replaceSupportLink(text) {
   //replace ail [Support] to SUPPORT_LINK
-  elem=`<a href=${SUPPORT_LINK} target="_blank">${l("message.support")}</a>`
+  elem=`<a class="ask-to-website-support-link" href=${SUPPORT_LINK} target="_blank">${l("message.support")}</a>`
   return text.replace(/\[Support\]/g, elem);
 }
 function references_to_dom(references ,answer) {
