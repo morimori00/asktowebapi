@@ -260,8 +260,8 @@ ASKTOWEB_ASSISTANT_DOM =
 }
   .message .source-link{
   border:solid 1px rgba(0,0,0,.1);
-  width:13rem;
-  height:2rem;
+  min-width:13rem;
+  min-height:2rem;
   border-radius:5px;
   display:flex;
   padding:5px;
