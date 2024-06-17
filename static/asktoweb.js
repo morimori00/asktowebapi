@@ -567,6 +567,7 @@ class ASKTOWEB_ASSISTANT {
   postit() {
     const text = this.asktowebtextarea.value;
     if (text.length < 3) { return; }
+    this.hiddeninput.innerText = "";
     this.postbtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     this.postbtn.disabled = true;
     this.resetbtn.disabled = true;
