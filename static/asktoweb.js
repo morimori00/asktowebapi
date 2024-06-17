@@ -468,8 +468,9 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         <div class="loader-text"><marquee scrollamount="3">Searching infomation from website...</marquee></div>
         </div>`;
 
-const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-// const API_URL = "http://127.0.0.1:8000";
+// const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
+const API_URL = "http://127.0.0.1:8000";
+const SUPPORT_LINK="https://asktoweb.ai/support";
 function generateRandomID() {
   let randomID = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -490,6 +491,11 @@ function extractNumbers(str) {
   }
 
   return numbers;
+}
+function replaceSupportLink(text) {
+  //replace ail [Support] to SUPPORT_LINK
+  elem=`<a href=${SUPPORT_LINK} target="_blank">${l("message.support")}</a>`
+  return text.replace(/\[Support\]/g, elem);
 }
 function references_to_dom(references ,answer) {
   let dom = l("message.reference");
@@ -548,11 +554,11 @@ class ASKTOWEB_ASSISTANT {
     this.closebtn.addEventListener("click", this.openaskwin.bind(this));
     this.asktowebtextarea = document.getElementById("ask-to-website-input");
     this.asktowebtextarea.placeholder = l("placeholder");
-    this.asktowebtextarea.addEventListener("keydown", function (e) {
-      if (e.key === 'Enter' && e.shiftKey) {
-        this.postit.bind(this)();
+    this.asktowebtextarea.addEventListener("keydown", (e) => {
+      if (e.key === 'Enter' && e.ctrlKey) {
+          this.postit();
       }
-    })
+  });
     this.chat = document.getElementById('chat');
     this.initchathistory();
     this.btn.addEventListener("click", this.openaskwin.bind(this)); // Bind the function to the class instance
@@ -611,7 +617,7 @@ class ASKTOWEB_ASSISTANT {
           if (element.type == "human") {
             this.humanmessage(element.content);
           } else if (element.type == "ai") {
-            this.currentaimessage= this.aimessage(element.content);
+            this.currentaimessage= this.aimessage(replaceSupportLink(element.content));
           } else if (element.type == "references") {
             const referencesdirs=element.content.split("$")
             this.aimessage(references_to_dom(referencesdirs.map(d => JSON.parse(d)),this.currentaimessage.innerText));
@@ -874,8 +880,8 @@ async function FetchAPI(query, myaimessage, fn, errormessage,verifyfn) {
           } else {
             console.log(`Received: ${data.value}`);
             if (data.type == "text") {
-              myaimessage(data.value);
-              finalanswer=data.value;
+              myaimessage(replaceSupportLink(data.value));
+              finalanswer=replaceSupportLink(data.value);
             } else if (data.type == "documents") {
               references.push(data.value);
             }
