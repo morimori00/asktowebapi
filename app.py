@@ -99,6 +99,7 @@ Always base your answers on context, don't make up facts! If you don't know the 
 NOTE:
 The context provided is only part of the page of the website searched, and the information the user is seeking may be found elsewhere on the page.
 Answer in the same language as the user's question text.
+Keep your answers short and concise, and limit them to 100 words.
 
 CONTEXT:
 {context}
