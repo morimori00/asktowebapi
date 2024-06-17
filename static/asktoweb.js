@@ -468,8 +468,8 @@ ASKTOWEB_ASSISTANT_TYPING_DOM = `<div id="asktoweb-message-loader" class="messag
         <div class="loader-text"><marquee scrollamount="3">Searching infomation from website...</marquee></div>
         </div>`;
 
-// const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://morimori-asktoweb-fgkdbemz.leapcell.dev";
+//const API_URL = "http://127.0.0.1:8000";
 const SUPPORT_LINK="https://asktoweb.ai/support";
 function generateRandomID() {
   let randomID = "";
