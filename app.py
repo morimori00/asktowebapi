@@ -58,7 +58,6 @@ contextualize_q_chain = (contextualize_q_prompt | llm | StrOutputParser()).with_
 
 verify_system_prompt = """
 You are a verifier who does not tolerate rigid and ambiguous answers.
-If the assistant is providing legal or medical advice, write "Assistant cannot provide legal or medical advice."
 Given the ai assistant's answer, check for consistency with the context below.
 If you find information in the assistant's answer that is not included in the context, you must remove it and generate a new, accurate answer.
 If everything is perfect, generate "ok".
