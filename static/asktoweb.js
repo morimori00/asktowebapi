@@ -742,7 +742,7 @@ class ASKTOWEB_ASSISTANT {
   verify(verify_result){
     console.log("verify"+verify_result);
     this.currentaimessage.classList.remove("verifying");
-    if(verify_result.toString().includes("null") || verify_result.toString().includes("Null") || verify_result.toString().includes("NULL")){
+    if(verify_result.toString().includes("ok") || verify_result.toString().includes("Ok") || verify_result.toString().includes("OK")){
         
     }else{
       this.currentaimessage.innerHTML=verify_result;
