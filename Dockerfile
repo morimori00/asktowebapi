@@ -4,7 +4,7 @@ WORKDIR /src
 
 ADD ./ /src
 
-RUN pip install --upgrade pip
+# RUN pip install --upgrade pip
 RUN pip install poetry
 RUN poetry install --no-cache --no-root --no-dev --only main
 
