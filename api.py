@@ -412,76 +412,79 @@ def resethistory(sesstionId: str):
 
 ##ハイライトページの作成
 import requests
-from bs4 import BeautifulSoup
-def highlight_and_scroll(url, target_text="",message="",sessionid=""):
+def highlight_and_scroll(url, target_text="", message="", sessionid=""):
     # URLからHTMLを取得
     response = requests.get(url)
     html_content = response.text
-    if(sessionid==""):
+    
+    if sessionid == "":
         chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
         sessionid = "".join([chars[ord(os.urandom(1)) % len(chars)] for i in range(20)])
 
-    # BeautifulSoupオブジェクトを作成
-    soup = BeautifulSoup(html_content, 'html.parser')
-
     # 特定の文字列を探してspanタグで囲む
     highlight_count = 0
-    for element in soup.find_all(string=re.compile(target_text)):
+    pattern = re.compile(re.escape(target_text), re.IGNORECASE)
+    
+    def replace_func(match):
+        nonlocal highlight_count
         highlight_count += 1
-        new_string = re.sub(f'({re.escape(target_text)})', f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">\\1</span>', element)
-        element.replace_with(BeautifulSoup(new_string, 'html.parser'))
+        return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
+    
+    modified_content = pattern.sub(replace_func, html_content)
 
-    msbox=soup.new_tag('div', id="message-box", style="position: absolute;background-color: white; color: black; padding: 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px;z-index:1000; transition: opacity 0.3s ease;")
-    #ホバー時にメッセージボックスを非表示にする
-    msbox["onmouseover"]="this.style.opacity='0';"
-    msbox["onmouseout"]="this.style.opacity='1';"
+    # メッセージボックスを追加
+    message_box_html = f'''
+    <div id="message-box" style="position: absolute; background-color: white; color: black; padding: 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px; z-index: 1000; transition: opacity 0.3s ease;" 
+    onmouseover="this.style.opacity='0';" onmouseout="this.style.opacity='1';">{escape(message)}</div>
+    '''
+    modified_content = modified_content.replace('</body>', message_box_html + '</body>')
 
-    msbox.string = message
-    soup.body.append(msbox)
     # スクロール用のJavaScriptを追加
-    script = soup.new_tag('script')
-    script.string = """
-    document.addEventListener('DOMContentLoaded', function() {
-        localStorage.setItem("DIKSA", "SESSIONID");
+    script_content = f"""
+    document.addEventListener('DOMContentLoaded', function() {{
+        localStorage.setItem("DIKSA", "{sessionid}");
         localStorage.setItem("DIKSAR", "open");
         var highlight = document.querySelector('.asktoweb-highlight');
         const messageBox = document.getElementById('message-box');
 
-            if (highlight && messageBox) {
-              console.log("highlight",highlight);
-              const highlightRect = highlight.getBoundingClientRect();
-              const windowWidth = window.innerWidth;
+        if (highlight && messageBox) {{
+            const highlightRect = highlight.getBoundingClientRect();
+            const windowWidth = window.innerWidth;
 
-              // 画面の左右どちらにスペースがあるか判断
-              const spaceOnRight = windowWidth - (highlightRect.right + 10);
-              const spaceOnLeft = highlightRect.left - 10;
+            // 画面の左右どちらにスペースがあるか判断
+            const spaceOnRight = windowWidth - (highlightRect.right + 10);
+            const spaceOnLeft = highlightRect.left - 10;
 
-              let left, top;
+            let left, top;
 
-              if (spaceOnRight > spaceOnLeft) {
+            if (spaceOnRight > spaceOnLeft) {{
                 // 右側にスペースがある場合
                 left = highlightRect.right + 10;
-              } else {
+            }} else {{
                 // 左側にスペースがある場合
                 left = highlightRect.left - messageBox.offsetWidth - 10;
-              }
+            }}
 
-              top = highlightRect.top;
+            top = highlightRect.top;
 
-              // メッセージボックスの位置とスタイルを設定
-              messageBox.style.left = `${left}px`;
-              messageBox.style.top = `${top}px`;
-              messageBox.style.display = 'block';
-              messageBox.style.opacity = '1';
-              messageBox.scrollIntoView({behavior: 'smooth', block: 'center'});
-            }
-        });
-    """.replace("SESSIONID",sessionid)
-    soup.body.append(script)
-    asktoweb_script = soup.new_tag('script', src="https://api.asktoweb.com/static/asktoweb.js")
-    soup.head.append(asktoweb_script)
+            // メッセージボックスの位置とスタイルを設定
+            messageBox.style.left = `${{left}}px`;
+            messageBox.style.top = `${{top}}px`;
+            messageBox.style.display = 'block';
+            messageBox.style.opacity = '1';
+            messageBox.scrollIntoView({{behavior: 'smooth', block: 'center'}});
+        }}
+    }});
+    """
+    script_tag = f'<script>{script_content}</script>'
+    modified_content = modified_content.replace('</body>', script_tag + '</body>')
+
+    asktoweb_script_tag = '<script src="https://api.asktoweb.com/static/asktoweb.js"></script>'
+    modified_content = modified_content.replace('</head>', asktoweb_script_tag + '</head>')
+
     # 修正されたHTMLを返す
-    return str(soup)
+    return modified_content
+
 @app.get("/highlight/")
 def fetch_html(url: str, highlight: str = "vbieocwec", message: str = "", sessionid: str = ""):
     try:
