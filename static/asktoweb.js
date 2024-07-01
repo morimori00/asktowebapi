@@ -906,7 +906,7 @@ class ASKTOWEB_ASSISTANT {
   openaskwin() {
     if (this.openflg == 1) {
       this.win.style.display = "block";
-      this.btn.children[0].innerHTML = ICON.arrow;
+      this.btn.querySelector("strong").innerHTML = ICON.arrow;
       this.win.style.animation = 'fadeInUp 0.3s ease-out forwards';
       this.sclchat();
       this.tooltip.dataset.tootik = "";
