@@ -412,6 +412,7 @@ def resethistory(sesstionId: str):
 
 ##ハイライトページの作成
 import requests
+from html import escape
 def highlight_and_scroll(url, target_text="", message="", sessionid=""):
     # URLからHTMLを取得
     response = requests.get(url)
