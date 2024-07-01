@@ -187,6 +187,7 @@ ASKTOWEB_ASSISTANT_DOM =
   font-size: 14.4px;
   padding-top: 2.0px;
   border-radius: 16.0px;
+  background: #999;
   top: -19.2px;
   right: -24.0px;
   background: transparent;
