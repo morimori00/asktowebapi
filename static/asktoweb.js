@@ -709,7 +709,7 @@ class ASKTOWEB_ASSISTANT {
     setTimeout(() => {
     if(localStorage.getItem("DIKSAR")=="open"){
       this.btn.click();
-    }},3000);
+    }},2000);
   }
   postit() {
     const text = this.asktowebtextarea.value;
@@ -917,7 +917,7 @@ class ASKTOWEB_ASSISTANT {
         this.openflg = 0
       }, 500);
     } else if (this.openflg == 0) {
-      this.btn.children[0].innerHTML = ICON.search;
+      this.btn.querySelector("strong").innerHTML = ICON.search;
       this.tooltip.dataset.tootik = "";
       this.win.style.animation = 'fadeOutDown 0.3s ease-out forwards';
       setTimeout(() => {
