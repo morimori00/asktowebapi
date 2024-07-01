@@ -865,7 +865,7 @@ class ASKTOWEB_ASSISTANT {
     let n=1;
     let toolkit= l("tooltip.link");
     references.forEach((link, index) => {
-      const placeholder = `\\[${index + 1}\\]`; // 正規表現で使用するためエスケープする
+      const placeholder = `\\(${index + 1}\\)`; // 正規表現で使用するためエスケープする
       const anchorTag = `<a href="${replaceHighlightLink(link['source'],contentHTML)}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${link['source']}',true)" onmouseout="referenceHover('${link['source']}',false)" >[${n}]</a>`;
       const regex = new RegExp(placeholder, 'g'); // 全ての出現箇所を置換するため'g'フラグを付ける
       //regexが存在する場合は、nを増やす
