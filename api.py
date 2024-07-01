@@ -489,6 +489,18 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
             messageBox.scrollIntoView({{behavior: 'smooth', block: 'center'}});
         }}
     }});
+
+    // リンクのクリックイベントを監視
+        document.querySelectorAll('a').forEach(function(link) {{
+            link.addEventListener('click', function(event) {{
+                const href = link.getAttribute('href');
+                if (href && !href.startsWith('http') && !href.startsWith('https')) {{
+                    event.preventDefault();
+                    const absoluteUrl = new URL(href, '{url}').href;
+                    window.location.href = "https://api.asktoweb.com/highlight?url="+absoluteUrl+"&sessionid="+localStorage.getItem("DIKSA");
+                }}
+            }});
+        }});
     """
     script_tag = f'<script>{script_content}</script>'
     modified_content = modified_content.replace('</body>', script_tag + '</body>')
