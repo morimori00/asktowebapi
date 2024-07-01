@@ -413,10 +413,23 @@ def resethistory(sesstionId: str):
 ##ハイライトページの作成
 import requests
 from html import escape
+from urllib.parse import urljoin
+def fix_relative_paths(html_content, base_url):
+    """
+    HTML内の相対パスを絶対パスに変換します
+    """
+    # リンクタグを修正
+    html_content = re.sub(r'(<(?:link|script|img)[^>]+(?:href|src)=")([^:"]+)"', lambda m: f'{m.group(1)}{urljoin(base_url, m.group(2))}"', html_content)
+    # CSSインポートを修正
+    html_content = re.sub(r'(url\()([\'"]?)([^:\)\'"]+)([\'"]?\))', lambda m: f'{m.group(1)}{m.group(2)}{urljoin(base_url, m.group(3))}{m.group(4)}', html_content)
+    return html_content
+
 def highlight_and_scroll(url, target_text="", message="", sessionid=""):
     # URLからHTMLを取得
     response = requests.get(url)
     html_content = response.text
+    # HTMLの相対パスを修正
+    html_content = fix_relative_paths(html_content, url)
     
     if sessionid == "":
         chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
