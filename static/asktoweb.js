@@ -87,6 +87,9 @@ ASKTOWEB_ASSISTANT_DOM =
   transition: 0.3s;
   color: var(--secondary-color);
 }
+.ask-to-website-animation strong {
+  position:relative;
+}
 .ask-to-website-animation svg {
   fill: var(--secondary-color);
   width: 16.0px;
@@ -483,6 +486,79 @@ font-size: 16.0px;
     /* 下に20px移動 */
   }
 }
+  
+.asktoweb-glowing-eft {
+  position:absolute;
+  top:0;
+  left:0;
+  width: 100%;
+  height:100%;
+  border-radius: 50%;
+  background-color: transparent;
+  box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+}
+.asktoweb-glowing-eft::before {
+  content: "";
+  position: absolute;
+  top: -250%;
+  left: -250%;
+  width: 600%;
+  height: 600%;
+  background: conic-gradient(
+    rgba(255, 255, 255, 0.2) 0deg,
+    rgba(255, 255, 255, 0.6) 20deg,
+    rgba(255, 255, 255, 0.9) 40deg,
+    rgba(255, 255, 255, 1) 60deg,
+    rgba(255, 255, 255, 0.9) 110deg,
+    rgba(255, 255, 255, 0.6) 130deg,
+    rgba(255, 255, 255, 0.2) 150deg,
+    transparent 170deg,
+    transparent 360deg
+  );
+  animation: rotate 1.5s linear infinite;
+  filter: blur(10px);
+}
+.asktoweb-glowing-eft::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background-color: black;
+  border-radius: 50%;
+  filter: blur(6px);
+}
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  20% {
+    transform: rotate(90deg);
+  }
+  35% {
+    transform: rotate(270deg);
+  }
+  50% {
+    transform: rotate(540deg);
+  }
+  65% {
+    transform: rotate(630deg);
+    opacity: 1;
+  }
+  80% {
+    transform: rotate(690deg);
+    opacity: .5;
+  }
+  100% {
+    transform: rotate(720deg);
+    opacity: 0;
+  }
+}
+
 </style>
 `
 
@@ -688,6 +764,13 @@ class ASKTOWEB_ASSISTANT {
             this.refinanswer(this.currentaimessage, referencesdirs.map(d => JSON.parse(d)));
           }
         });
+
+        let glowingeffect= document.createElement('div');
+        glowingeffect.classList.add('asktoweb-glowing-eft');
+        this.btn.insertBefore(glowingeffect, this.btn.firstChild);
+        setTimeout(() => {
+          glowingeffect.remove();
+        },1500)
       })
       .catch(error => {
         // Handle any errors that occur during the request

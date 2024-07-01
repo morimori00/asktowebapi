@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 # .envファイルの内容を読み込見込む
 load_dotenv(override=True)
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException,Response
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware # 追加
 from fastapi.staticfiles import StaticFiles
@@ -410,5 +410,87 @@ def resethistory(sesstionId: str):
     save_chat_history(chat_history, sesstionId)
     return {"chat_history": chat_history}
 
+##ハイライトページの作成
+import requests
+from bs4 import BeautifulSoup
+def highlight_and_scroll(url, target_text="",message="",sessionid=""):
+    # URLからHTMLを取得
+    response = requests.get(url)
+    html_content = response.text
+    if(sessionid==""):
+        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        sessionid = "".join([chars[ord(os.urandom(1)) % len(chars)] for i in range(20)])
+
+    # BeautifulSoupオブジェクトを作成
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # 特定の文字列を探してspanタグで囲む
+    highlight_count = 0
+    for element in soup.find_all(string=re.compile(target_text)):
+        highlight_count += 1
+        new_string = re.sub(f'({re.escape(target_text)})', f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">\\1</span>', element)
+        element.replace_with(BeautifulSoup(new_string, 'html.parser'))
+
+    msbox=soup.new_tag('div', id="message-box", style="position: absolute;background-color: white; color: black; padding: 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px;z-index:1000; transition: opacity 0.3s ease;")
+    #ホバー時にメッセージボックスを非表示にする
+    msbox["onmouseover"]="this.style.opacity='0';"
+    msbox["onmouseout"]="this.style.opacity='1';"
+
+    msbox.string = message
+    soup.body.append(msbox)
+    # スクロール用のJavaScriptを追加
+    script = soup.new_tag('script')
+    script.string = """
+    document.addEventListener('DOMContentLoaded', function() {
+        localStorage.setItem("DIKSA", "SESSIONID");
+        localStorage.setItem("DIKSAR", "open");
+        var highlight = document.querySelector('.asktoweb-highlight');
+        const messageBox = document.getElementById('message-box');
+
+            if (highlight && messageBox) {
+              console.log("highlight",highlight);
+              const highlightRect = highlight.getBoundingClientRect();
+              const windowWidth = window.innerWidth;
+
+              // 画面の左右どちらにスペースがあるか判断
+              const spaceOnRight = windowWidth - (highlightRect.right + 10);
+              const spaceOnLeft = highlightRect.left - 10;
+
+              let left, top;
+
+              if (spaceOnRight > spaceOnLeft) {
+                // 右側にスペースがある場合
+                left = highlightRect.right + 10;
+              } else {
+                // 左側にスペースがある場合
+                left = highlightRect.left - messageBox.offsetWidth - 10;
+              }
+
+              top = highlightRect.top;
+
+              // メッセージボックスの位置とスタイルを設定
+              messageBox.style.left = `${left}px`;
+              messageBox.style.top = `${top}px`;
+              messageBox.style.display = 'block';
+              messageBox.style.opacity = '1';
+              messageBox.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+        });
+    """.replace("SESSIONID",sessionid)
+    soup.body.append(script)
+    asktoweb_script = soup.new_tag('script', src="https://api.asktoweb.com/static/asktoweb.js")
+    soup.head.append(asktoweb_script)
+    # 修正されたHTMLを返す
+    return str(soup)
+@app.get("/highlight/")
+def fetch_html(url: str, highlight: str = "vbieocwec", message: str = "", sessionid: str = ""):
+    try:
+        modified_html = highlight_and_scroll(url, highlight, message, sessionid)
+        return Response(content=modified_html, media_type="text/html")
+    except requests.HTTPError as e:
+        raise HTTPException(status_code=response.status_code, detail=f"HTTP error: {e}")
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"Request error: {e}")
+    
 if __name__ == "__main__":
     uvicorn.run(app)
