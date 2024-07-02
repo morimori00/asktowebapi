@@ -122,10 +122,10 @@ template="""
 INSTRUCTIONS:
 You are the assistant who answers the questions of the website visitors.
 Please tell the user the page and the part that contains the answer to the user's question.
-To indicate the referenced link, please mention the source number in your answer like this.
-
-Ex: The product has a feature that allows you to customize the interface [1]. If you need to contact support, you can do so by visiting the contact page [2].
-    The pricing plans for the service are listed on the features page [1]. Please check the page for details.
+To indicate the referenced source, please include the source number and the part of the referenced section in your response, as in the following examples.
+Format: ["Reference part"@SOURCE_NUMBER]
+Ex: The product has a feature that allows you to customize the interface ["Customize"@1]. If you need to contact support, you can do so by visiting the contact page ["Call us"@2].
+    The pricing plans for the service are listed on the features page ["This is features of our product"@1]. Please check the page for details.
 
 If sufficient information is not included in the context, please use the examples below to answer the question.
 That information may not appear on this website. Please check the following highly relevant pages, or visit [Support] 
@@ -429,6 +429,83 @@ def fix_relative_paths(html_content, base_url):
     html_content = re.sub(r'(url\()([\'"]?)([^:\)\'"]+)([\'"]?\))', lambda m: f'{m.group(1)}{m.group(2)}{urljoin(base_url, m.group(3))}{m.group(4)}', html_content)
     return html_content
 
+
+#return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
+
+def highlight_text_across_tags(html_text, target_text):
+    def split_html_text(html_text):
+        splited_text=[]
+        splited_text_start_pos=[]
+        pos=0
+        status = 2 #0:タグ外,1:タグ内 2タグ終了
+        body_start_pos = html_text.find("<body>")
+        for s in html_text:
+            if pos < body_start_pos:
+                pos=pos+1
+                continue
+            if status == 0:
+                if s=="<":
+                    status = 1
+                elif not re.match(r'\s', s):
+                    splited_text[-1] += s
+            elif status == 1:
+                if s==">":
+                    status = 2
+            else:
+                if s != "<" and not re.match(r'\s', s):
+                    splited_text.append(s)
+                    splited_text_start_pos.append(pos)
+                    status = 0
+                else:
+                    status = 1
+
+            pos=pos+1
+        return splited_text, splited_text_start_pos
+    # HTMLテキストをタグごとに分割して配列で取得
+    tag_texts,tag_text_start_pos = split_html_text(html_text)
+    joined_text = ''.join(tag_texts)
+    #target_textの開始位置と終了位置を取得
+    start_pos = joined_text.find(target_text)
+    end_pos = start_pos + len(target_text)
+    #n番目の文字が何番目のタグの中にあるかを調べる
+    def get_tag_index(pos,tag_texts):
+        index = 0
+        for tag_text in tag_texts:
+            # タグの中に位置が含まれる場合はそのタグの位置を返す
+            if pos < len(tag_text):
+                return index
+            pos -= len(tag_text)
+            index += 1
+        return -1
+    splited_target_text = [target_text[0]]
+    splited_target_text_index=[get_tag_index(start_pos, tag_texts)]
+    splited_target_text_start_pos_in_index=[tag_texts[splited_target_text_index[0]].find(target_text[0])]
+    tag_index=get_tag_index(start_pos, tag_texts)
+    for i in range(1, len(target_text)):
+        if tag_index == get_tag_index(start_pos + i, tag_texts):
+            splited_target_text[-1] += target_text[i]
+        else:
+            splited_target_text.append(target_text[i])
+            splited_target_text_index.append(get_tag_index(start_pos + i, tag_texts))
+            splited_target_text_start_pos_in_index.append(tag_texts[splited_target_text_index[-1]].find(target_text[i]))
+            tag_index = get_tag_index(start_pos + i, tag_texts)
+
+    # splited_target_text各要素のHTMLでの開始位置を取得
+    splited_target_text_start_pos_in_html=[]
+    for i in range(len(splited_target_text)):
+        splited_target_text_start_pos_in_html.append(tag_text_start_pos[splited_target_text_index[i]]+splited_target_text_start_pos_in_index[i])
+   
+    #HTMLの取得した開始位置に<higlight>を挿入
+    offset=0
+    for i in range(len(splited_target_text)):
+        starttag=f'<span style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">'
+        endtag="</span>"
+        html_text = html_text[:splited_target_text_start_pos_in_html[i]+offset] + starttag + html_text[splited_target_text_start_pos_in_html[i]+offset:]
+        offset+=len(starttag)
+        html_text = html_text[:splited_target_text_start_pos_in_html[i]+offset+len(splited_target_text[i])] + endtag + html_text[splited_target_text_start_pos_in_html[i]+offset+len(splited_target_text[i]):]
+        offset+=len(endtag)
+    return html_text
+
 def highlight_and_scroll(url, target_text="", message="", sessionid=""):
     # URLからHTMLを取得
     response = requests.get(url)
@@ -441,18 +518,19 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
         sessionid = "".join([chars[ord(os.urandom[1]) % len(chars)] for i in range(20)])
 
     # 特定の文字列を探してspanタグで囲む
-    highlight_count = 0
-    pattern = re.compile(re.escape(target_text), re.IGNORECASE)
+    # highlight_count = 0
+    # pattern = re.compile(re.escape(unquote(target_text)), re.IGNORECASE)
     
-    def replace_func(match):
-        nonlocal highlight_count
-        highlight_count += 1
-        return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
+    # def replace_func(match):
+    #     nonlocal highlight_count
+    #     highlight_count += 1
+    #     return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
     
-    modified_content = pattern.sub(replace_func, html_content)
+    # modified_content = pattern.sub(replace_func, html_content)
+    modified_content = highlight_text_across_tags(html_content, target_text)
     # メッセージボックスを追加
     message_box_html = f'''
-    <div id="message-box" style="position: absolute; background-color: white; color: black; padding: 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px; z-index: 1000; transition: opacity 0.3s ease;" 
+    <div id="message-box" style="position: absolute; background-color: white; color: black; padding: 10px; border-radius: 10px;display:none; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); max-width: 400px; z-index: 1000; transition: opacity 0.3s ease;" 
     onmouseover="this.style.opacity='0';" onmouseout="this.style.opacity='1';">{unquote(message)}</div>
     '''
     modified_content = modified_content.replace('</body>', message_box_html + '</body>')
@@ -486,6 +564,7 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
             top = highlightRect.top;
 
             // メッセージボックスの位置とスタイルを設定
+            messageBox.style.display = 'block';
             messageBox.style.left = `${{left}}px`;
             messageBox.style.top = `${{top}}px`;
             messageBox.style.display = 'block';

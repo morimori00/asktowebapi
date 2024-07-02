@@ -607,8 +607,8 @@ function generateRandomID() {
   return randomID;
 }
 function extractNumbers(str) {
-  // 正規表現を使って、[]で囲まれた数字を抽出
-  const regex = /\[(.*?)\]/g;
+  // 正規表現を使って、@と]で囲まれた数字を抽出
+  const regex = /\@(.*?)\]/g;
   const matches = str.matchAll(regex);
 
   // 抽出した数字を配列に格納
@@ -864,16 +864,26 @@ class ASKTOWEB_ASSISTANT {
     let contentHTML = messageelem.innerHTML;
     let n=1;
     let toolkit= l("tooltip.link");
-    references.forEach((link, index) => {
-      const placeholder = `\\[${index + 1}\\]`; // 正規表現で使用するためエスケープする
-      const anchorTag = `<a href="${replaceHighlightLink(link['source'],contentHTML)}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${link['source']}',true)" onmouseout="referenceHover('${link['source']}',false)" >[${n}]</a>`;
-      const regex = new RegExp(placeholder, 'g'); // 全ての出現箇所を置換するため'g'フラグを付ける
-      //regexが存在する場合は、nを増やす
-      if (contentHTML.match(regex)) {
-        n++;
-      contentHTML = contentHTML.replace(regex, anchorTag);
-      }
+    // references.forEach((link, index) => {
+    //   const placeholder = `\\[${index + 1}\\]`; // 正規表現で使用するためエスケープする
+    //   const anchorTag = `<a href="${replaceHighlightLink(link['source'],contentHTML)}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${link['source']}',true)" onmouseout="referenceHover('${link['source']}',false)" >[${n}]</a>`;
+    //   const regex = new RegExp(placeholder, 'g'); // 全ての出現箇所を置換するため'g'フラグを付ける
+    //   //regexが存在する場合は、nを増やす
+    //   if (contentHTML.match(regex)) {
+    //     n++;
+    //   contentHTML = contentHTML.replace(regex, anchorTag);
+    //   }
+    // });
+    //最新の参照フォーマット(["text"@N])に対応
+    contentHTML=contentHTML.replace(/\["([^"]+)"@(\d+)\]/g, (match, p1, p2) => {
+      // p1 はタグ内のテキスト、p2 は参照番号
+      const ref=references[p2-1];
+      const hilighttexturl=ref["source"].split("#:~:text=")[0]+"#:~:text="+p1;
+      const url = replaceHighlightLink(hilighttexturl, contentHTML.replace(/\[.*?\]/g, ''));  // URL を取得
+      const atag= `<a href="${url}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${ref['source']}',true)" onmouseout="referenceHover('${ref['source']}',false)" >[${p1}]</a>`;
+      return atag     // 置換するリンクを生成
     });
+
     messageelem.innerHTML = contentHTML;
   }
   addloader() {
