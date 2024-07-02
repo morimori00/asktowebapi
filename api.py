@@ -81,7 +81,7 @@ You will be provided with the search AI's answer.
 2. If the answer is not included in the context, rewrite the answer.
 The search AI's answers must not be vague and should not contain any unsupported assumptions or guesses.
 Always rewrite the answer in the same language as the search AI's original answer.
-Retain any reference page numbers (e.g., (1), (2)) in the original answer.
+Retain any reference page numbers (e.g., [1], [2]) in the original answer.
 
 Context:
 {context}
@@ -123,9 +123,9 @@ INSTRUCTIONS:
 You are the assistant who answers the questions of the website visitors.
 Please tell the user the page and the part that contains the answer to the user's question.
 To indicate the referenced link, please mention the source number in your response like this.
-(1) or (2) or (3) ... etc.
-Ex: The product has a feature that allows you to customize the interface (1). If you need to contact support, you can do so by visiting the contact page (2).
-Ex2: The pricing plans for the service are listed on the features page (1). Please check the page for details.
+[1] or [2] or [3] ... etc.
+Ex: The product has a feature that allows you to customize the interface [1]. If you need to contact support, you can do so by visiting the contact page [2].
+Ex2: The pricing plans for the service are listed on the features page [1]. Please check the page for details.
 
 If sufficient information is not included in the context, please use the examples below to answer the question.
 That information may not appear on this website. Please check the following highly relevant pages, or visit [Support] 
@@ -141,7 +141,7 @@ CONTEXT:
 # You are the assistant for the website visitors.
 # Please tell the user the page and the part that contains the answer to the user's question.
 # To indicate the referenced link, please write the source number in your response like this.
-# (1) or (2) ... etc.
+# [1] or [2] ... etc.
 # Keep your answers short and concise, and limit them to 100 letters.
 # Always base your answers on context, don't make up facts! If you don't know the answer, say like "I couldn't find the information on the website."
 # If the question is about legal or medical matters, answer, "I cannot answer that question."
@@ -149,9 +149,9 @@ CONTEXT:
 # Answer in the same language as the user's question text.
 
 # ANSWER EXAMPLE:
-# 1. The pricing plans for the service are listed on the features page (1). Please check the page for details.
-# 2. The product's features are listed on the features page (1). Please check the page for details.
-# 3. If you want to send a message to the support team, you can do so by visiting the contact page (3).
+# 1. The pricing plans for the service are listed on the features page [1]. Please check the page for details.
+# 2. The product's features are listed on the features page [1]. Please check the page for details.
+# 3. If you want to send a message to the support team, you can do so by visiting the contact page [3].
 
 # CONTEXT:
 # {context}
@@ -162,16 +162,16 @@ CONTEXT:
 # Your job is to find the answer to the user's question in the following *CONTEXT*.
 # Instead of answering the user's question, you tell the user where to find the information they need, as in the example below.
 # To indicate the referenced link, please write the source number in your response like this.
-# (1) or (2) ... etc.
+# [1] or [2] ... etc.
 # The link to contact support should appear as follows [Support].
 
 # If the answer to the user's question does not exist in the context, provide the most relevant part of the context.
 
 # ANSWER EXAMPLE:
-# 1. The answer to your question could not be found, but we did find several pages that may be relevant. (1)(2)(3) If your question is not resolved after reviewing these pages, we suggest you contact support [Support].
-# 2. If you want to send a message to the support team, you can do so by visiting the contact page (3).
-# 3. The pricing plans for the service are listed on the features page (1).You can use this service for free or upgrade to a paid plan. Please check the page for details.
-# 4. The product's features are listed on the features page (1).Its main features are easy to use and customizable. Please check the page for details.
+# 1. The answer to your question could not be found, but we did find several pages that may be relevant. [1][2][3] If your question is not resolved after reviewing these pages, we suggest you contact support [Support].
+# 2. If you want to send a message to the support team, you can do so by visiting the contact page [3].
+# 3. The pricing plans for the service are listed on the features page [1].You can use this service for free or upgrade to a paid plan. Please check the page for details.
+# 4. The product's features are listed on the features page [1].Its main features are easy to use and customizable. Please check the page for details.
 
 # NOTE:
 # If the question is about legal or medical matters, answer, "I cannot mention that question from legal reasons."
@@ -421,9 +421,9 @@ def fix_relative_paths(html_content, base_url):
     HTML内の相対パスを絶対パスに変換します
     """
     # リンクタグを修正
-    html_content = re.sub(r'(<(?:link|script|img)[^>]+(?:href|src)=")([^:"]+)"', lambda m: f'{m.group(1)}{urljoin(base_url, m.group(2))}"', html_content)
+    html_content = re.sub(r'(<(?:link|script|img)[^>]+(?:href|src)=")([^:"]+)"', lambda m: f'{m.group[1]}{urljoin(base_url, m.group[2])}"', html_content)
     # CSSインポートを修正
-    html_content = re.sub(r'(url\()([\'"]?)([^:\)\'"]+)([\'"]?\))', lambda m: f'{m.group(1)}{m.group(2)}{urljoin(base_url, m.group(3))}{m.group(4)}', html_content)
+    html_content = re.sub(r'(url\()([\'"]?)([^:\)\'"]+)([\'"]?\))', lambda m: f'{m.group[1]}{m.group[2]}{urljoin(base_url, m.group[3])}{m.group(4)}', html_content)
     return html_content
 
 def highlight_and_scroll(url, target_text="", message="", sessionid=""):
@@ -435,7 +435,7 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
     
     if sessionid == "":
         chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        sessionid = "".join([chars[ord(os.urandom(1)) % len(chars)] for i in range(20)])
+        sessionid = "".join([chars[ord(os.urandom[1]) % len(chars)] for i in range(20)])
 
     # 特定の文字列を探してspanタグで囲む
     highlight_count = 0
