@@ -122,17 +122,20 @@ template="""
 INSTRUCTIONS:
 You are the assistant who answers the questions of the website visitors.
 Please tell the user the page and the part that contains the answer to the user's question.
-To indicate the referenced link, please mention the source number in your response like this.
-[1] or [2] or [3] ... etc.
+To indicate the referenced link, please mention the source number in your answer like this.
+
 Ex: The product has a feature that allows you to customize the interface [1]. If you need to contact support, you can do so by visiting the contact page [2].
-Ex2: The pricing plans for the service are listed on the features page [1]. Please check the page for details.
+    The pricing plans for the service are listed on the features page [1]. Please check the page for details.
 
 If sufficient information is not included in the context, please use the examples below to answer the question.
 That information may not appear on this website. Please check the following highly relevant pages, or visit [Support] 
+
 NOTE:
 The context provided is only part of the page of the website searched, and the information the user is seeking may be found elsewhere on the page.
 You cannot answer legal or medical questions.
+Answer in markdown format.
 Answer in the same language as the user's question text.
+
 CONTEXT:
 {context}
 """
@@ -415,7 +418,7 @@ def resethistory(sesstionId: str):
 ##ハイライトページの作成
 import requests
 from html import escape
-from urllib.parse import urljoin,urlencode
+from urllib.parse import urljoin,unquote
 def fix_relative_paths(html_content, base_url):
     """
     HTML内の相対パスを絶対パスに変換します
@@ -450,7 +453,7 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
     # メッセージボックスを追加
     message_box_html = f'''
     <div id="message-box" style="position: absolute; background-color: white; color: black; padding: 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px; z-index: 1000; transition: opacity 0.3s ease;" 
-    onmouseover="this.style.opacity='0';" onmouseout="this.style.opacity='1';">{escape(message)}</div>
+    onmouseover="this.style.opacity='0';" onmouseout="this.style.opacity='1';">{unquote(message)}</div>
     '''
     modified_content = modified_content.replace('</body>', message_box_html + '</body>')
 
