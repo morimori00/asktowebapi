@@ -421,9 +421,9 @@ def fix_relative_paths(html_content, base_url):
     HTML内の相対パスを絶対パスに変換します
     """
     # リンクタグを修正
-    html_content = re.sub(r'(<(?:link|script|img)[^>]+(?:href|src)=")([^:"]+)"', lambda m: f'{m.group[1]}{urljoin(base_url, m.group[2])}"', html_content)
+    html_content = re.sub(r'(<(?:link|script|img)[^>]+(?:href|src)=")([^:"]+)"', lambda m: f'{m.group(1)}{urljoin(base_url, m.group(2))}"', html_content)
     # CSSインポートを修正
-    html_content = re.sub(r'(url\()([\'"]?)([^:\)\'"]+)([\'"]?\))', lambda m: f'{m.group[1]}{m.group[2]}{urljoin(base_url, m.group[3])}{m.group(4)}', html_content)
+    html_content = re.sub(r'(url\()([\'"]?)([^:\)\'"]+)([\'"]?\))', lambda m: f'{m.group(1)}{m.group(2)}{urljoin(base_url, m.group(3))}{m.group(4)}', html_content)
     return html_content
 
 def highlight_and_scroll(url, target_text="", message="", sessionid=""):
