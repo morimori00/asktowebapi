@@ -415,7 +415,7 @@ def resethistory(sesstionId: str):
 ##ハイライトページの作成
 import requests
 from html import escape
-from urllib.parse import urljoin
+from urllib.parse import urljoin,urlencode
 def fix_relative_paths(html_content, base_url):
     """
     HTML内の相対パスを絶対パスに変換します
@@ -447,7 +447,6 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
         return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
     
     modified_content = pattern.sub(replace_func, html_content)
-
     # メッセージボックスを追加
     message_box_html = f'''
     <div id="message-box" style="position: absolute; background-color: white; color: black; padding: 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px; z-index: 1000; transition: opacity 0.3s ease;" 
@@ -490,9 +489,8 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
             messageBox.style.opacity = '1';
             messageBox.scrollIntoView({{behavior: 'smooth', block: 'center'}});
         }}
-    }});
 
-    // リンクのクリックイベントを監視
+        // リンクのクリックイベントを監視
         document.querySelectorAll('a').forEach(function(link) {{
             link.addEventListener('click', function(event) {{
                 const href = link.getAttribute('href');
@@ -503,6 +501,58 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
                 }}
             }});
         }});
+
+         // Shadow DOMにバナーを追加
+        const bannerContainer = document.createElement('div');
+        const shadowRoot = bannerContainer.attachShadow({{ mode: 'open' }});
+        const bannerContent = `
+        <style>
+            #asktoweb-banner {{
+                background-color: #ffcc00; /* Green */
+                color: black;
+                text-align: center;
+                padding: 15px;
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                z-index: 1001;
+                font-family: 'Roboto', sans-serif;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }}
+            #asktoweb-banner a {{
+                color: blue; /* Accent color */
+                text-decoration: none;
+                font-weight: bold;
+                margin-left: 10px;
+                display: inline-flex;
+                align-items: center;
+                transition: color 0.3s;
+            }}
+            #asktoweb-banner a:hover {{
+               color:#00008B;
+            }}
+            #asktoweb-banner a::after {{
+                content: '→';
+                margin-left: 5px;
+                transition: margin-left 0.3s;
+            }}
+            #asktoweb-banner a:hover::after {{
+                margin-left: 10px;
+            }}
+            </style>
+            <div id="asktoweb-banner">
+                このページはasktowebの参照機能によって表示されています　<a href="{escape(url)}" target="_blank">実際のページに移動</a>
+            </div>
+        `;
+        shadowRoot.innerHTML = bannerContent;
+        document.body.appendChild(bannerContainer);
+
+    }});
+
+    
     """
     script_tag = f'<script>{script_content}</script>'
     modified_content = modified_content.replace('</body>', script_tag + '</body>')

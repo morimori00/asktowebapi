@@ -627,11 +627,11 @@ function replaceSupportLink(text) {
   return text.replace(/\[Support\]/g, elem);
 }
 function replaceHighlightLink(url,answer) {
-  // let target=url.split("#:~:text=")[1].substring(0, 30);
-  // let link=url.split("#:~:text=")[0];
-  // if(target){
-  //   return encodeURI( API_URL+"/highlight?url="+link+"&message="+answer+"&sessionid="+get_sesstionId()+"&highlight="+target);
-  // }
+  let target=url.split("#:~:text=")[1].substring(0, 30);
+  let link=url.split("#:~:text=")[0];
+  if(target){
+    return encodeURI( API_URL+"/highlight?url="+link+"&message="+answer+"&sessionid="+get_sesstionId()+"&highlight="+target);
+  }
   return url;
 }
 function references_to_dom(references ,answer) {
@@ -742,6 +742,12 @@ class ASKTOWEB_ASSISTANT {
         this.resetbtn.disabled = false;
         this.postbtn.disabled = false;
         this.chat.innerHTML = "";
+        let glowingeffect= document.createElement('div');
+        glowingeffect.classList.add('asktoweb-glowing-eft');
+        this.btn.insertBefore(glowingeffect, this.btn.firstChild);
+        setTimeout(() => {
+          glowingeffect.remove();
+        },1500)
         if (data["chat_history"].length == 0) {
           this.resetbtn.disabled = true;
           const date = new Date();
@@ -766,12 +772,6 @@ class ASKTOWEB_ASSISTANT {
           }
         });
 
-        let glowingeffect= document.createElement('div');
-        glowingeffect.classList.add('asktoweb-glowing-eft');
-        this.btn.insertBefore(glowingeffect, this.btn.firstChild);
-        setTimeout(() => {
-          glowingeffect.remove();
-        },1500)
       })
       .catch(error => {
         // Handle any errors that occur during the request
