@@ -539,7 +539,6 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
     script_content = f"""
     document.addEventListener('DOMContentLoaded', function() {{
         localStorage.setItem("DIKSA", "{sessionid}");
-        localStorage.setItem("DIKSAR", "open");
         var highlight = document.querySelector('.asktoweb-highlight');
         const messageBox = document.getElementById('message-box');
 
