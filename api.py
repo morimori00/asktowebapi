@@ -575,9 +575,14 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
         document.querySelectorAll('a').forEach(function(link) {{
             link.addEventListener('click', function(event) {{
                 const href = link.getAttribute('href');
-                if (href && !href.startsWith('http') && !href.startsWith('https')) {{
+                if (href) {{
                     event.preventDefault();
-                    const absoluteUrl = new URL(href, '{url}').href;
+                    let absoluteUrl = "";
+                    if (!href.startsWith('http') && !href.startsWith('https')){{
+                        absoluteUrl = new URL(href, window.location.href).href;
+                    }}else{{
+                        absoluteUrl = href;
+                    }}
                     window.location.href = "https://api.asktoweb.com/highlight?url="+absoluteUrl+"&sessionid="+localStorage.getItem("DIKSA");
                 }}
             }});
