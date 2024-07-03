@@ -36,6 +36,11 @@ ASKTOWEB_ASSISTANT_DOM =
     </div>
     <div class="messages" id="chat">
     </div>
+    <div id="asktowebsuggestion" class="asktowebsuggestion">
+      <p></p>
+      <div class="suggestion">
+      </div>
+    </div>
     <div class="asktowebinput">
       <button id="ask-to-website-reset-btn" class="asktowebpost" data-tootik="Reset Conversation" data-tootik-conf="no-arrow shadow delay">
       <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 576 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M272 416c17.7 0 32-14.3 32-32s-14.3-32-32-32H160c-17.7 0-32-14.3-32-32V192h32c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-64-64c-12.5-12.5-32.8-12.5-45.3 0l-64 64c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8l32 0 0 128c0 53 43 96 96 96H272zM304 96c-17.7 0-32 14.3-32 32s14.3 32 32 32l112 0c17.7 0 32 14.3 32 32l0 128H416c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l64 64c12.5 12.5 32.8 12.5 45.3 0l64-64c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8l-32 0V192c0-53-43-96-96-96L304 96z"/></svg>
@@ -229,7 +234,7 @@ ASKTOWEB_ASSISTANT_DOM =
   box-sizing: border-box;
 }
 .ask-to-website-chat .messages {
-  padding: 16.0px;
+  padding: 16px 16px 32px 16px;
   background: #f7f7f7;
   flex-shrink: 2;
   overflow-y: auto;
@@ -346,6 +351,48 @@ ASKTOWEB_ASSISTANT_DOM =
 }
 .ask-to-website-chat .messages .message .typing.typing-3 {
   animation: typing 3s 500ms infinite;
+}
+.asktowebsuggestion {
+  position: absolute;
+  bottom: 60px;
+  display: none;
+  transition: max-height .4s ease;
+  flex-direction: column;
+  justify-content: center;
+  left: 0px;
+  max-height: 50px;
+  width: 100%;
+  background: white;
+  border-radius: 10px 10px 0 0;
+}
+.asktowebsuggestion p {
+  font-size: 15px;
+  margin: 0 20px;
+}
+ .asktowebsuggestion .suggestion {
+  font-size: 15px;
+  margin: 0 20px;
+  white-space: nowrap;
+  overflow: auto;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+.asktowebsuggestion .suggestion a {
+  display: inline-block;
+  margin-right: 5px;
+}
+.asktowebsuggestion .suggestion::-webkit-scrollbar {
+  display: none;
+}
+.asktowebsuggestion:hover {
+  max-height: 100px;
+}
+ .asktowebsuggestion:hover .suggestion {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  height: auto;
 }
 .ask-to-website-chat .asktowebpost {
     flex-shrink: 0;
@@ -701,8 +748,16 @@ class ASKTOWEB_ASSISTANT {
     this.btn.addEventListener("click", this.openaskwin.bind(this)); // Bind the function to the class instance
     this.resetbtn.addEventListener("click", this.resetsesstion.bind(this));
     //this.asktowebtextarea.addEventListener("keydown", this.postit.bind(this));
+    this.suggestion = shadowRoot.getElementById("asktowebsuggestion");
+    this.suggestion.querySelector("p").innerText = l("suggestion");
     this.asktowebtextarea.addEventListener('input', e => {
       this.hiddeninput.innerText = e.target.value + "\u200b";
+      this.suggestion.style.bottom = "calc(60px +"+ this.hiddeninput.clientHeight + "px)";
+      if(e.target.value.length>3){
+        this.querypages(e.target.value);
+      }else{
+        this.suggestion.style.display = "none";
+      }
     })
     this.postbtn.addEventListener("click", this.postit.bind(this)); // Bind the function to the class instance
     console.log("AssistantBtn created" + this.openflg);
@@ -714,6 +769,7 @@ class ASKTOWEB_ASSISTANT {
   postit() {
     const text = this.asktowebtextarea.value;
     if (text.length < 3) { return; }
+    this.suggestion.style.display = "none";
     this.hiddeninput.innerText = "";
     this.postbtn.innerHTML = ICON.spiner;
     this.postbtn.disabled = true;
@@ -724,6 +780,51 @@ class ASKTOWEB_ASSISTANT {
     this.addloader();
     this.sclchat();
     FetchAPI(text, this.streamingaimessage.bind(this), this.addrefecenses.bind(this), this.errormessage.bind(this), this.verify.bind(this));
+  }
+  querypages(query) {
+    if(this.isquerying){return;}
+    this.isquerying = true;
+    fetch(API_URL + '/querypages?query=' + query +"&website="+NAMESPACE, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Handle the response data here
+        //update the suggestion
+        if(data.length==0){
+          this.suggestion.style.display = "none";
+          this.isquerying = false;
+          if(query!=this.asktowebtextarea.value){
+            this.querypages(this.asktowebtextarea.value);
+          }
+          return;
+        }
+        console.log(data[0].url);
+        this.suggestion.style.display = "flex";
+        this.suggestion.querySelector(".suggestion").innerHTML = "";
+        for (let i = 0; i < data.length; i++) {
+          let a = document.createElement('a');
+          a.href = data[i]["url"];
+          if(data[i]["url"].includes("#:~:text=") && data[i]["url"].split("#:~:text=")[1].length>3){
+            a.innerText = data[i]["url"].split("#:~:text=")[1];
+          }else{
+            a.innerText = data[i]["title"];
+          }
+          a.target = "_blank";
+          this.suggestion.querySelector(".suggestion").appendChild(a);
+        }
+        this.isquerying = false;
+        if(query!=this.asktowebtextarea.value){
+          this.querypages(this.asktowebtextarea.value);
+        }
+      })
+      .catch(error => {
+        // Handle any errors that occur during the request
+        console.error(error);
+      });
   }
   initchathistory() {
     this.resetbtn.disabled = true;

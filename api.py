@@ -415,6 +415,14 @@ def resethistory(sesstionId: str):
     save_chat_history(chat_history, sesstionId)
     return {"chat_history": chat_history}
 
+@app.get("/querypages")
+def querypages(query: str, website: str):
+    vectorstore = PineconeVectorStore(index_name=index_name, embedding=embeddings, namespace=website)
+    retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.9,"k":2})
+    documents = retriever.invoke(query)
+    data = [{"page_content": doc.page_content, "url": doc.metadata["source"],"title":doc.metadata["title"]} for doc in documents]
+    return data
+
 ##ハイライトページの作成
 import requests
 from html import escape
