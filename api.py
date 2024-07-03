@@ -445,7 +445,8 @@ def highlight_text_across_tags(html_text, target_text):
         splited_text=[]
         splited_text_start_pos=[]
         pos=0
-        status = 2 #0:タグ外,1:タグ内 2タグ終了 3:除外タグ内(header,footer,script,style)
+        status = 2 # 0:テキスト 1:タグ開始 2:タグ終了 3:除外タグ開始 4:除外タグ終了 5:除外タグ終了後
+        extract_tag=["header","footer","script","style"]
         body_start_pos = html_text.find("<body>")
         for s in html_text:
             if pos < body_start_pos:
@@ -454,7 +455,8 @@ def highlight_text_across_tags(html_text, target_text):
             if status == 0:
                 if s=="<":
                     #除外タグかどうかを判定
-                    if "header" in html_text[pos:pos+6] or "footer" in html_text[pos:pos+6] or "script" in html_text[pos:pos+6] or "style" in html_text[pos:pos+6]:
+                    tagname=html_text[pos+1:pos+8].strip()
+                    if any(tag in tagname for tag in extract_tag):
                         status = 3
                     else:
                         status = 1
@@ -469,7 +471,12 @@ def highlight_text_across_tags(html_text, target_text):
                     splited_text_start_pos.append(pos)
                     status = 0
                 else:
-                    status = 1
+                    #除外タグかどうかを判定
+                    tagname=html_text[pos+1:pos+8].strip()
+                    if any(tag in tagname for tag in extract_tag):
+                        status = 3
+                    else:
+                        status = 1
             elif status == 3:
                 if s==">":
                     status = 4
