@@ -646,7 +646,7 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
                 background-color: #ffcc00; /* Green */
                 color: black;
                 text-align: center;
-                padding: 15px;
+                padding: 7px;
                 position: fixed;
                 bottom: 0;
                 width: 100%;
@@ -684,6 +684,47 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
         `;
         shadowRoot.innerHTML = bannerContent;
         document.body.appendChild(bannerContainer);
+
+        // 矢印を作成する関数
+function createArrow() {{
+  const arrow = document.createElement('div');
+  arrow.innerHTML = '&#10132;'; // Unicode の矢印文字
+  arrow.style.position = 'absolute';
+  arrow.style.fontSize = '24px';
+  arrow.style.color = 'red';
+  return arrow;
+}}
+
+// asktoweb-highlight要素に矢印を追加する関数
+function addArrowsToHighlights() {{
+  const highlights = document.querySelectorAll('.asktoweb-highlight');
+  
+  highlights.forEach(highlight => {{
+    const arrow = createArrow();
+    document.body.appendChild(arrow);
+
+    const highlightRect = highlight.getBoundingClientRect();
+    const bodyRect = document.body.getBoundingClientRect();
+
+    // 右側のスペースを確認
+    const rightSpace = bodyRect.right - highlightRect.right;
+    // 左側のスペースを確認
+    const leftSpace = highlightRect.left - bodyRect.left;
+
+    if (rightSpace > leftSpace) {{
+      // 右側に配置
+      arrow.style.left = `${{ighlightRect.right + 10}}px`;
+      arrow.style.top = `${{highlightRect.top + highlightRect.height / 2 - 12}}px`;
+    }} else {{
+    // 左側に配置
+      arrow.style.left = `${{highlightRect.left - 34}}px`;
+      arrow.style.top = `${{highlightRect.top + highlightRect.height / 2 - 12}}px`;
+      arrow.style.transform = 'scaleX(-1)'; // 左向きに反転
+    }}
+  }});
+}}
+
+addArrowsToHighlights();
 
     }});
 

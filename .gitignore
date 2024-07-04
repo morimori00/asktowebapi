@@ -1,3 +1,4 @@
 # .envファイルをgitの管理対象から外す
 .env
 .venv
+test.py
