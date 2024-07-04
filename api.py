@@ -123,7 +123,7 @@ INSTRUCTIONS:
 You are the assistant who answers the questions of the website visitors.
 Please tell the user the page and the part that contains the answer to the user's question.
 To indicate the referenced source, please include the source number and the part of the referenced section in your response, as in the following examples.
-Format: ["Reference part"@SOURCE_NUMBER]
+Format: ["Reference part"@SOURCE_NUMBER] **SOURCE_NUMBER cannot be written more than once at the same time**
 Ex: The product has a feature that allows you to customize the interface ["Customize"@1]. If you need to contact support, you can do so by visiting the contact page ["Call us"@2].
     The pricing plans for the service are listed on the features page ["This is features of our product"@1]. Please check the page for details.
 
@@ -449,50 +449,72 @@ def highlight_text_across_tags(html_text, target_text):
         extract_tag=["header","footer","script","style"]
         body_start_pos = html_text.find("<body>")
         for s in html_text:
-            if pos < body_start_pos:
+            if pos < body_start_pos+6:
                 pos=pos+1
                 continue
             if status == 0:
+                #タグの外
                 if s=="<":
-                    #除外タグかどうかを判定
-                    tagname=html_text[pos+1:pos+8].strip()
+                    #タグの開始
+                    status = 1
+                    #除外タグならstatus=3
+                    tagname=html_text[pos+1:pos+10].strip()
                     if any(tag in tagname for tag in extract_tag):
                         status = 3
-                    else:
-                        status = 1
-                elif not re.match(r'\s', s):
+                elif not re.match(r'[\s\u3000]', s):
+                    #有効な文字なのでテキストとして追加
                     splited_text[-1] += s
-            elif status == 1:
-                if s==">":
-                    status = 2
             elif status == 2:
-                if s != "<" and not re.match(r'\s', s):
+                #タグ内のテキストの開始時
+                if s != "<" and not re.match(r'[\s\u3000]', s):
+                    #有効な文字なので新しいチャンクのテキストとして追加
                     splited_text.append(s)
                     splited_text_start_pos.append(pos)
                     status = 0
-                else:
-                    #除外タグかどうかを判定
-                    tagname=html_text[pos+1:pos+8].strip()
+                elif s=="<":
+                    #タグの開始
+                    status = 1
+                    #除外タグならstatus=3
+                    tagname=html_text[pos+1:pos+10].strip()
                     if any(tag in tagname for tag in extract_tag):
                         status = 3
-                    else:
-                        status = 1
-            elif status == 3:
+            elif status == 1:
+                #タグの開始
                 if s==">":
+                    #タグの終了
+                    status = 2
+            elif status == 3:
+                #除外タグの開始
+                if s==">":
+                    #除外タグの終了
                     status = 4
             elif status == 4:
+                #除外タグの終了
                 if s == "<":
+                    #次のタグの開始
                     status = 5
             elif status == 5:
+                #次のタグの開始
                 if s == ">":
+                    #次のタグの終了
                     status = 2
             pos=pos+1
         return splited_text, splited_text_start_pos
     # HTMLテキストをタグごとに分割して配列で取得
+    # html_text = re.sub(r'[\n\s]', '', html_text)
+    #全角スペースを除外
+    # html_text = re.sub(r'[\u3000]', '', html_text)
     tag_texts,tag_text_start_pos = split_html_text(html_text)
     joined_text = ''.join(tag_texts)
     #target_textの開始位置と終了位置を取得
     start_pos = joined_text.find(target_text)
+    
+    while start_pos == -1 and len(target_text) > 2:
+        target_text = target_text[:-1]
+        start_pos = joined_text.find(target_text)
+    print("target_text:"+target_text)
+    if start_pos == -1:
+        return html_text
     end_pos = start_pos + len(target_text)
     #n番目の文字が何番目のタグの中にあるかを調べる
     def get_tag_index(pos,tag_texts):

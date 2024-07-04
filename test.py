@@ -4,58 +4,94 @@ def split_html_text(html_text):
     splited_text=[]
     splited_text_start_pos=[]
     pos=0
-    status = 2 # 0:テキスト 1:タグ開始 2:タグ終了 3:除外タグ開始 4:除外タグ終了 5:除外タグ終了後
+    status = 2
     extract_tag=["header","footer","script","style"]
     body_start_pos = html_text.find("<body>")
     for s in html_text:
-            if pos < body_start_pos:
-                pos=pos+1
-                continue
-            if status == 0:
-                if s=="<":
-                    #除外タグかどうかを判定
-                    tagname=html_text[pos+1:pos+8].strip()
-                    if any(tag in tagname for tag in extract_tag):
-                        status = 3
-                    else:
-                        status = 1
-                elif not re.match(r'\s', s):
-                    splited_text[-1] += s
-            elif status == 1:
-                if s==">":
-                    status = 2
-            elif status == 2:
-                if s != "<" and not re.match(r'\s', s):
-                    splited_text.append(s)
-                    splited_text_start_pos.append(pos)
-                    status = 0
-                else:
-                    #除外タグかどうかを判定
-                    tagname=html_text[pos+1:pos+8].strip()
-                    if any(tag in tagname for tag in extract_tag):
-                        status = 3
-                    else:
-                        status = 1
-            elif status == 3:
-                if s==">":
-                    status = 4
-            elif status == 4:
-                if s == "<":
-                    status = 5
-            elif status == 5:
-                if s == ">":
-                    status = 2
+        if pos < body_start_pos+6:
             pos=pos+1
+            continue
+        if status == 0:
+            #タグの外
+            if s=="<":
+                #タグの開始
+                status = 1
+                #除外タグならstatus=3
+                tagname=html_text[pos+1:pos+10].strip()
+                if any(tag in tagname for tag in extract_tag):
+                    status = 3
+            elif not re.match(r'[\s\u3000]', s):
+                #有効な文字なのでテキストとして追加
+                splited_text[-1] += s
+        elif status == 2:
+            #タグ内のテキストの開始時
+            if s != "<" and not re.match(r'[\s\u3000]', s):
+                #有効な文字なので新しいチャンクのテキストとして追加
+                splited_text.append(s)
+                splited_text_start_pos.append(pos)
+                status = 0
+            elif s=="<":
+                #タグの開始
+                status = 1
+                #除外タグならstatus=3
+                tagname=html_text[pos+1:pos+10].strip()
+                if any(tag in tagname for tag in extract_tag):
+                    status = 3
+        elif status == 1:
+            #タグの開始
+            if s==">":
+                #タグの終了
+                status = 2
+        elif status == 3:
+            #除外タグの開始
+            if s==">":
+                #除外タグの終了
+                status = 4
+        elif status == 4:
+            #除外タグの終了
+            if s == "<":
+                #次のタグの開始
+                status = 5
+        elif status == 5:
+            #次のタグの開始
+            if s == ">":
+                #次のタグの終了
+                status = 2
+        pos=pos+1
+
     return splited_text, splited_text_start_pos
+
+from html.parser import HTMLParser
+def split_html_text2(html_text):
+    class MyHTMLParser(HTMLParser):
+        def __init__(self):
+            HTMLParser.__init__(self)
+            self.tag = tag
+            self._in_extracttag = False
+            self._splitedtext = ''
+        def handle_starttag(self, tag):
+            print("Encountered a start tag:", tag)
+
+        def handle_endtag(self, tag):
+            print("Encountered an end tag :", tag)
+
+        def handle_data(self, data):
+            print("Encountered some data  :", data)
+
+
 # テスト用のHTMLテキスト
 html_text = '''
 <html>
 <head><title>タイトルテキスト</title></head>
 <body>
-<header>テキスト</header>
+
+    <script>テキスト</script> 
+<header>テキストなん</header>
     <h1>見出し1</h1>
-    <p>段落1のテキスト。</p>
-    <p>段落2のテキスト。</p>
+    <p>段落1のテキス　あト。</p>
+    <p>段落2のテキス あト。</p>
+     
+    <footer>テキストなん</footer>
 </body>
 </html>
 '''
@@ -68,6 +104,14 @@ print(joined_text)
 target_text = 'テキスト'
 #target_textの開始位置と終了位置を取得
 start_pos = joined_text.find(target_text)
+if start_pos == -1:
+    print("Not Found")
+    exit()
+print(target_text)
+if start_pos == -1:
+    print("Not Found")
+    exit()
+
 end_pos = start_pos + len(target_text)
 print("[",start_pos, end_pos,"]")
 #n番目の文字が何番目のタグの中にあるかを調べる
