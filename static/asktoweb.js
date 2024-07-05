@@ -18,7 +18,7 @@ ASKTOWEB_ASSISTANT_DOM =
       <button class="closebtn" data-tootik="Close" data-tootik-conf="no-arrow shadow delay" id="ask-to-website-close-btn">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>     
  </button>
-      <div class="pic robot"></div>
+      <div class="pic robot"><span></span></div>
       <div id="ask-to-website-name" class="name"></div>
       <div class="seen">
         Pwered by ASKTOWEB.com 
@@ -59,6 +59,10 @@ ASKTOWEB_ASSISTANT_DOM =
 <style>
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css?family=Red+Hat+Display:400,500,900&display=swap");
+*{
+--primary-color: %DESIGN_PRIMARY_COLOR%;
+--secondary-color: %DESIGN_SECONDARY_COLOR%;
+}
 .ask-to-website {
   width: 64.0px;
   height: 64.0px;
@@ -73,8 +77,6 @@ ASKTOWEB_ASSISTANT_DOM =
   line-height: 1.25em;
   letter-spacing: 0.025em;
   z-index: 99000;
-  --primary-color: black;
-  --secondary-color: #fff;
 }
   
 .ask-to-website-animation {
@@ -148,14 +150,6 @@ ASKTOWEB_ASSISTANT_DOM =
   box-sizing: unset;
 }
 
-.pic {
-  width: 56.0px;
-  height: 56.0px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 20%;
-}
-
 .contact {
   position: relative;
   margin-bottom: 16.0px;
@@ -164,10 +158,6 @@ ASKTOWEB_ASSISTANT_DOM =
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-.contact .pic {
-  position: absolute;
-  left: 0;
 }
 .contact .name {
   font-weight: 500;
@@ -240,7 +230,7 @@ ASKTOWEB_ASSISTANT_DOM =
 }
   
 .ask-to-website-chat::after{
-  content:"A";
+  content:"%DESIGN_ACSENT_CHARACTER%";
   position:absolute;
   z-index:3;
   left:0;
@@ -403,6 +393,9 @@ ASKTOWEB_ASSISTANT_DOM =
   color:black;
   text-decoration: none;
   display: inline-block;
+  border:1px solid #666;
+  padding:2px;
+  border-radius: 7px;
   margin-right: 5px;
 }
 .asktowebsuggestion .suggestion::-webkit-scrollbar {
@@ -414,6 +407,9 @@ ASKTOWEB_ASSISTANT_DOM =
  .asktowebsuggestion:hover .suggestion {
   white-space: normal;
   overflow-wrap: anywhere;
+}
+   .asktowebsuggestion:hover .suggestion a {
+  margin-bottom:3px;
 }
 .ask-to-website-chat .asktowebpost {
     flex-shrink: 0;
@@ -510,7 +506,7 @@ font-size: 16.0px;
   z-index: 1;
 }
 .ask-to-website-chat .asktowebinput textarea:focus {
-  border:solid 1px #444;
+  border:solid 1px var(--primary-color);
 }
 .ask-to-website-chat .asktowebinput textarea:placeholder {
   color: #999;
@@ -533,14 +529,15 @@ font-size: 16.0px;
   }
 }
 .pic.robot {
-  /*background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");*/
-  /*background-image: url("https://i.ibb.co/pbWCkhM/1.png");*/
-  /*background-image: url("https://i.ibb.co/VvZmGxw/2024-06-17-081619.png");*/
-  background-image: url("https://i.ibb.co/Ny986qn/1.png");
-  background-size: 180%;
-  background-position: center;
-  background-repeat: no-repeat;
-
+  position: absolute;
+  left: 0;
+  width: 56.0px;
+  background-color:var(--primary-color);
+  height: 56.0px;
+  mask-repeat: no-repeat;
+mask-position: center;
+mask-size: 200%;
+ mask-image:url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTAwLjAwMDAwMHB0IiBoZWlnaHQ9IjUwMC4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUwMC4wMDAwMDAgNTAwLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTAwLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTE0MzcgMzY2NyBjLTMgLTkgLTExIC01NiAtMTggLTEwNCAtMTUgLTExMCAtNiAtMjg4IDIxIC00MDcgMTEgLTQ5CjE4IC05MSAxNyAtOTMgLTUgLTUgLTkwIDk3IC0xMzggMTY3IC0yNSAzNiAtNjEgMTAzIC04MSAxNDggbC0zNiA4NCAtNCAtNTQKYy0xMiAtMTgwIDc2IC00MDYgMjE2IC01NTEgNDggLTUxIDUxIC01NiAyOCAtNTEgLTM4IDggLTIwOCA5MyAtMjY3IDEzMyAtMjcKMTkgLTcyIDUyIC05OSA3NSBsLTQ5IDQxIDcgLTMwIGM3IC0yOSA0MiAtMTA1IDcwIC0xNTQgNDkgLTgzIDIwMiAtMTk3IDM0NQotMjU2IDUwIC0yMSA5MSAtMzkgOTEgLTQwIDAgLTQgLTEwMSA2IC0yMjUgMjEgLTExNyAxNSAtMjg4IDY0IC0zNDIgOTkgLTY4CjQ1IDQxIC02NyAxMzIgLTEzNCA2NyAtNTAgMjAzIC0xMjAgMjgwIC0xNDQgNTcgLTE4IDI5MyAtNjYgMzMzIC02OCAxNiAtMSA2Ci01IC0yMiAtMTAgLTY5IC0xMSAtMzMyIC0xNyAtNDUzIC0xMCAtNTYgMyAtOTkgMyAtOTUgLTEgMTUgLTE1IDI0MyAtNjggMzM0Ci03OCA1NCAtNSAxNzggLTEwIDI3NyAtMTAgMzE4IDAgNTY0IC00NSA3OTYgLTE0NSBsNDAgLTE3IC03MCAtMjYgYy0zOSAtMTUKLTkxIC0zOSAtMTE1IC01MyAtMTIyIC03MiAtMzEyIC0xNTcgLTQwMCAtMTc5IC0xOSAtNCAtNjIgLTE1IC05NSAtMjQgLTMzIC04Ci05NiAtMjEgLTE0MCAtMzAgLTE3NiAtMzIgLTE2OSAtMjkgLTkwIC0zNyAxMjEgLTE0IDQ0OSAxMCA1ODAgNDEgMjIgNSA0NSA5CjUwIDkgMTMgMCAtODYgLTQ4IC0xMDEgLTQ4IC01IC0xIC0zNSAtMTMgLTY1IC0yNyAtMTE5IC01OCAtMzY4IC0xNDQgLTQxNgotMTQ0IC0xMiAwIC0yNCAtMyAtMjYgLTggLTE2IC0yNSAzNzcgMTkgNDc2IDUzIDgxIDI5IDgwIDI4IDcyIDE1IC0xOCAtMjkKLTI0OSAtMTYyIC0zNDAgLTE5NiAtMTggLTcgLTE3IC04IDYgLTExIDE1IC0yIDY0IDYgMTEwIDE3IDczIDE5IDExOSA0MCAyODcKMTMwIDE4IDEwIDUyIDM0IDc1IDUyIDIzIDE5IDY5IDUwIDEwMiA2OSA1NCAzMSA2NyAzNCAxMzUgMzQgNDkgLTEgMTAxIC05CjE1MCAtMjQgNDEgLTEzIDEwMSAtMjQgMTM1IC0yNCBsNjAgLTIgMyA2OSAzIDY4IC0yNyAtMjEgYy0zMyAtMjYgLTU0IC0yNwotODcgLTEgLTE0IDExIC0zMCAyMCAtMzYgMjAgLTYgMCAtMTEgOSAtMTEgMjAgMCAxMSA0IDIwIDEwIDIwIDUgMCAyNyAxNSA0NwozNCA3NiA2OCAxODEgOTYgMjc5IDc2IDg3IC0xOCAxNTMgLTY2IDE4MCAtMTMwIGwxNSAtMzUgMTQgMjUgYzIxIDM2IDE4IDkwCi02IDEzNSAtMTIgMjIgLTM3IDc2IC01NiAxMjAgbC0zMyA4MCA0NSAtNTAgYzI1IC0yNyA1OCAtNzYgNzQgLTEwOCAxOCAtMzcKMzAgLTUzIDM0IC00NCA3IDE4IC05IDkwIC0yNyAxMjYgLTE5IDM1IC04OSAxMDIgLTE1MiAxNDQgLTY5IDQ2IC0yNzAgMTE4Ci00MjQgMTUyIC0xNjUgMzYgLTMxMCA4MCAtMzkwIDExNyAtNzggMzcgLTIyMSAxMjEgLTI3MCAxNjAgLTEzNyAxMDkgLTI5NgoyNzQgLTM4MyAzOTkgLTEwMiAxNDcgLTE4MSAyNzUgLTIwOCAzMzkgLTYgMTQgLTI0IDUxIC00MSA4MyAtMTYgMzEgLTQyIDk0Ci01NyAxMzkgLTE4IDU0IC0zMCA3NiAtMzQgNjV6IG0xMzMzIC0xODg1IGMwIC01IC02IC0xNiAtMTMgLTI3IC0xMSAtMTQgLTIxCi0xNiAtNTAgLTExIC00OSA5IC00NyAyMSA2IDMzIDU3IDE0IDU3IDE0IDU3IDV6Ii8+CjxwYXRoIGQ9Ik0zNjkyIDI5MjEgYy0yMyAtMjQgLTQyIC00NyAtNDIgLTUyIDAgLTUgLTkgLTkgLTE5IC05IC0xOCAwIC01NAotMzkgLTk2IC0xMDUgLTE3IC0yNyAtMjAgLTI4IC0yMyAtMTAgLTIgMTEgLTExIDI4IC0yMCAzOCAtMjkgMzIgLTQwIDIwIC00NwotNTIgLTggLTc3IC0xOCAtODIgLTUwIC0yOCBsLTE5IDMyIC02IC0zNSBjLTggLTQ1IC0yNSAtNzUgLTUyIC05NCAtMzUgLTI1Ci0zOCAtMjAgLTIzIDMyIDggMjYgMTUgNjEgMTUgNzcgbDAgMzAgLTE5IC0zMSBjLTEwIC0xNyAtMzEgLTQwIC00NSAtNTEgLTE0Ci0xMiAtMjYgLTI1IC0yNiAtMzAgMCAtNSAtMjAgLTI4IC00NCAtNTIgbC00NCAtNDMgLTY2IDM3IGMtMzcgMjEgLTcwIDM1IC03MwozMSAtMyAtMyAtMSAtMTggNiAtMzMgNiAtMTUgMTEgLTM5IDEwIC01MyAtMSAtMTQgMCAtMzIgMiAtNDAgMyAtMTIgLTUgLTE0Ci00NiAtMTIgLTUwIDQgLTExMCAyNiAtMTUzIDU4IGwtMjIgMTYgMTQgLTMzIGMxOSAtNDcgNTYgLTcwIDIwOSAtMTMwIDczIC0yOAoxNDMgLTU5IDE1NyAtNjggNDkgLTMxIDExMiAtODIgMTMwIC0xMDQgbDE4IC0yMiAxMSAyOCBjNiAxNiAxMSAzMyAxMSAzOCAwCjE2IDM4IDg2IDgzIDE1MiA0OCA3MSA2NyA5MyAxNTYgMTg4IDEyMyAxMzEgMTkxIDI3NiAxNjMgMzQ4IGwtOSAyNCAtNDEgLTQyeiIvPgo8L2c+Cjwvc3ZnPgo=");
 }
 
 @keyframes fadeInUp {
@@ -604,7 +601,7 @@ font-size: 16.0px;
   content: "";
   position: absolute;
   inset: 8px;
-  background-color: black;
+  background-color: var(--primary-color);
   border-radius: 50%;
   filter: blur(6px);
 }
@@ -650,6 +647,10 @@ var ICON={
   "spiner":`<svg class="spinner" xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M304 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zm0 416a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM48 304a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm464-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM142.9 437A48 48 0 1 0 75 369.1 48 48 0 1 0 142.9 437zm0-294.2A48 48 0 1 0 75 75a48 48 0 1 0 67.9 67.9zM369.1 437A48 48 0 1 0 437 369.1 48 48 0 1 0 369.1 437z"/></svg>`,
   "search":`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>`
 };
+
+var DESIGN_PRIMARY_COLOR = "black";
+var DESIGN_SECONDARY_COLOR = "#fff";
+var DESIGN_ACSENT_CHARACTER = "A";
 
 var USER_LANGUAGE = navigator.language || navigator.userLanguage;
 USER_LANGUAGE = USER_LANGUAGE.substring(0, 2);
@@ -1191,7 +1192,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("AssistantBtn created");
   container= document.createElement("div");
   shadowRoot = container.attachShadow({mode: 'closed'});
-  shadowRoot.innerHTML = ASKTOWEB_ASSISTANT_DOM;
+  shadowRoot.innerHTML = ASKTOWEB_ASSISTANT_DOM.replace("%DESIGN_PRIMARY_COLOR%",DESIGN_PRIMARY_COLOR).replace("%DESIGN_SECONDARY_COLOR%",DESIGN_SECONDARY_COLOR).replace("%DESIGN_ACSENT_CHARACTER%",DESIGN_ACSENT_CHARACTER);
   document.body.appendChild(container);
   var script = document.createElement('script');
   script.src = API_URL + "/static/marked.min.js";
