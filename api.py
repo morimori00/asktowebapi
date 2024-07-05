@@ -34,14 +34,14 @@ from fastapi.responses import StreamingResponse
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from pydantic import BaseModel
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage ,SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_anthropic import ChatAnthropic
 # llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 MODEL_NAME="claude-3-haiku-20240307"
 llm= ChatAnthropic(model=MODEL_NAME, temperature=0)
 llm2 = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-MAX_REFERENCE=10
+MAX_REFERENCE=9
 # llm = ChatOpenAI(model="gpt-4o", temperature=0)
 # MAX_REFERENCE = 10
 contextualize_q_system_prompt = """
@@ -123,7 +123,7 @@ INSTRUCTIONS:
 You are the assistant who answers the questions of the website visitors.
 Please tell the user the page and the part that contains the answer to the user's question.
 To indicate the referenced source, please include the source number and the part of the referenced section in your response, as in the following examples.
-Format: ["Reference part"@SOURCE_NUMBER] **SOURCE_NUMBER cannot be written more than once at the same time**
+Format: ["Reference part"@SOURCE_NUMBER]
 Ex: The product has a feature that allows you to customize the interface ["Customize"@1]. If you need to contact support, you can do so by visiting the contact page ["Call us"@2].
     The pricing plans for the service are listed on the features page ["This is features of our product"@1]. Please check the page for details.
 
@@ -685,47 +685,6 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
         shadowRoot.innerHTML = bannerContent;
         document.body.appendChild(bannerContainer);
 
-        // 矢印を作成する関数
-function createArrow() {{
-  const arrow = document.createElement('div');
-  arrow.innerHTML = '&#10132;'; // Unicode の矢印文字
-  arrow.style.position = 'absolute';
-  arrow.style.fontSize = '24px';
-  arrow.style.color = 'red';
-  return arrow;
-}}
-
-// asktoweb-highlight要素に矢印を追加する関数
-function addArrowsToHighlights() {{
-  const highlights = document.querySelectorAll('.asktoweb-highlight');
-  
-  highlights.forEach(highlight => {{
-    const arrow = createArrow();
-    document.body.appendChild(arrow);
-
-    const highlightRect = highlight.getBoundingClientRect();
-    const bodyRect = document.body.getBoundingClientRect();
-
-    // 右側のスペースを確認
-    const rightSpace = bodyRect.right - highlightRect.right;
-    // 左側のスペースを確認
-    const leftSpace = highlightRect.left - bodyRect.left;
-
-    if (rightSpace > leftSpace) {{
-      // 右側に配置
-      arrow.style.left = `${{ighlightRect.right + 10}}px`;
-      arrow.style.top = `${{highlightRect.top + highlightRect.height / 2 - 12}}px`;
-    }} else {{
-    // 左側に配置
-      arrow.style.left = `${{highlightRect.left - 34}}px`;
-      arrow.style.top = `${{highlightRect.top + highlightRect.height / 2 - 12}}px`;
-      arrow.style.transform = 'scaleX(-1)'; // 左向きに反転
-    }}
-  }});
-}}
-
-addArrowsToHighlights();
-
     }});
 
     
@@ -749,5 +708,26 @@ def fetch_html(url: str, highlight: str = "vbieocwec", message: str = "", sessio
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Request error: {e}")
     
+from langchain_groq import ChatGroq
+chatGroq = ChatGroq(
+    temperature=0,
+    model="llama3-70b-8192"
+)
+@app.get("/complete/")
+def complete(query: str):
+    prompt = [
+        SystemMessage(content="Complete user questions. If the question is already complete, output the question as is."),
+        HumanMessage(content="この製品は無"),
+        AIMessage(content="この製品は無料ですか？"),
+        HumanMessage(content="How much"),
+        AIMessage(content="How much does this product cost?"),
+        HumanMessage(content="Is there a student discount for this service?"),
+        AIMessage(content="Is there a student discount for this service?"),
+        HumanMessage(content="カスタマ"),
+        AIMessage(content="カスタマーサポートに問い合わせる方法は？"),
+        HumanMessage(content=query),
+    ]
+    return chatGroq.invoke(prompt).content
+
 if __name__ == "__main__":
     uvicorn.run(app)

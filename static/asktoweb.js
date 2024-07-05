@@ -46,7 +46,7 @@ ASKTOWEB_ASSISTANT_DOM =
       <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 576 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M272 416c17.7 0 32-14.3 32-32s-14.3-32-32-32H160c-17.7 0-32-14.3-32-32V192h32c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-64-64c-12.5-12.5-32.8-12.5-45.3 0l-64 64c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8l32 0 0 128c0 53 43 96 96 96H272zM304 96c-17.7 0-32 14.3-32 32s14.3 32 32 32l112 0c17.7 0 32 14.3 32 32l0 128H416c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l64 64c12.5 12.5 32.8 12.5 45.3 0l64-64c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8l-32 0V192c0-53-43-96-96-96L304 96z"/></svg>
       </button>
       <div class="ask-to-website-input-container">
-        <div class="ask-to-website-hidden-input" id="ask-to-website-hidden-input"></div>
+        <div class="ask-to-website-hidden-input" id="ask-to-website-hidden-input"><span id="ask-to-website-hidden-input-user"></span><span id="ask-to-website-hidden-input-complete"></span></div>
         <textarea id="ask-to-website-input" placeholder="Type your message here!" type="text"></textarea>
       </div>
       <button id="ask-to-website-post-btn" data-tootik="Send" data-tootik-conf="no-arrow shadow delay" class="asktowebpost">
@@ -451,15 +451,23 @@ font-size: 16.0px;
   word-wrap: break-word;
   height:auto;
   padding: 8.0px 16.0px;
-  opacity: 0;
+  opacity: 1;
+  color:transparent;
   box-sizing: unset;
   max-height: 104.0px;
+}
+.ask-to-website-chat .asktowebinput .ask-to-website-hidden-input #ask-to-website-hidden-input-use{
+  color:transparent;
+}
+  .ask-to-website-chat .asktowebinput .ask-to-website-hidden-input #ask-to-website-hidden-input-complete{
+  color:rgba(0,0,0,.5);
 }
 .ask-to-website-chat .asktowebinput textarea {
   position: absolute;
   border: none;
   background-image: none;
-  background-color: white;
+  background-color: transparent;
+  color:black;
   padding: 8.0px 16.0px;
   margin-right: 16.0px;
   border-radius: 18.0px;
@@ -733,6 +741,8 @@ class ASKTOWEB_ASSISTANT {
     this.closebtn = shadowRoot.getElementById("ask-to-website-close-btn");
     this.closebtn.dataset.tootik = l("tooltip.close");
     this.hiddeninput = shadowRoot.getElementById("ask-to-website-hidden-input");
+    this.hiddeninput_user = shadowRoot.getElementById("ask-to-website-hidden-input-user");
+    this.hiddeninput_complete= shadowRoot.getElementById("ask-to-website-hidden-input-complete");
     this.nametext = shadowRoot.getElementById("ask-to-website-name");
     this.nametext.innerHTML = l("title") + ' [' + LANGAGE_NAME + ']';
     this.closebtn.addEventListener("click", this.openaskwin.bind(this));
@@ -741,6 +751,15 @@ class ASKTOWEB_ASSISTANT {
     this.asktowebtextarea.addEventListener("keydown", (e) => {
       if (e.key === 'Enter' && e.ctrlKey) {
           this.postit();
+      }
+      //tabキーでplaceholderを補完
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        if(this.hiddeninput_complete.innerText.length>0){
+          this.asktowebtextarea.value +=  this.hiddeninput_complete.innerText;
+          this.hiddeninput_user.value += this.hiddeninput_complete.innerText;
+          this.hiddeninput_complete.innerText = "";
+        }
       }
   });
     this.chat = shadowRoot.getElementById('chat');
@@ -751,10 +770,12 @@ class ASKTOWEB_ASSISTANT {
     this.suggestion = shadowRoot.getElementById("asktowebsuggestion");
     this.suggestion.querySelector("p").innerText = l("suggestion");
     this.asktowebtextarea.addEventListener('input', e => {
-      this.hiddeninput.innerText = e.target.value + "\u200b";
+      this.hiddeninput_user.innerText = e.target.value + "\u200b";
       this.suggestion.style.bottom = "calc(60px +"+ this.hiddeninput.clientHeight + "px)";
-      if(e.target.value.length>3){
+      this.hiddeninput_complete.innerText = "";
+      if(e.target.value.length>1){
         this.querypages(e.target.value);
+        this.completequery(e.target.value);
       }else{
         this.suggestion.style.display = "none";
       }
@@ -770,7 +791,8 @@ class ASKTOWEB_ASSISTANT {
     const text = this.asktowebtextarea.value;
     if (text.length < 3) { return; }
     this.suggestion.style.display = "none";
-    this.hiddeninput.innerText = "";
+    this.hiddeninput_complete.innerText="";
+    this.hiddeninput_user.innerText="";
     this.postbtn.innerHTML = ICON.spiner;
     this.postbtn.disabled = true;
     this.resetbtn.disabled = true;
@@ -780,6 +802,32 @@ class ASKTOWEB_ASSISTANT {
     this.addloader();
     this.sclchat();
     FetchAPI(text, this.streamingaimessage.bind(this), this.addrefecenses.bind(this), this.errormessage.bind(this), this.verify.bind(this));
+  }
+  completequery(query){
+    if(query.length < 3){return;}
+    if(this.ifcompletequery){return;}
+    this.ifcompletequery=true;
+    fetch(API_URL + '/complete?query=' + query,{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Handle the response data here
+      this.ifcompletequery=false;
+      if(this.asktowebtextarea.value!=query){
+        this.completequery(this.asktowebtextarea.value);
+        return;
+      }
+      this.hiddeninput_complete.innerText = data.substring(query.length);
+      console.log(data);
+    })
+    .catch(error => {
+      console.error(error);
+      this.ifcompletequery=false;
+    });
   }
   querypages(query) {
     if(this.isquerying){return;}
@@ -823,6 +871,7 @@ class ASKTOWEB_ASSISTANT {
       })
       .catch(error => {
         // Handle any errors that occur during the request
+        this.isquerying
         console.error(error);
       });
   }
@@ -976,12 +1025,25 @@ class ASKTOWEB_ASSISTANT {
     //   }
     // });
     //最新の参照フォーマット(["text"@N])に対応
-    contentHTML=contentHTML.replace(/\["([^"]+)"@(\d+)\]/g, (match, p1, p2) => {
-      // p1 はタグ内のテキスト、p2 は参照番号
+    // contentHTML=contentHTML.replace(/\["([^"]+)"@(\d+)\]/g, (match, p1, p2) => {
+    //   // p1 はタグ内のテキスト、p2 は参照番号
+    //   const ref=references[p2-1];
+    //   const hilighttexturl=ref["source"].split("#:~:text=")[0]+"#:~:text="+p1;
+    //   const url = replaceHighlightLink(hilighttexturl, contentHTML.replace(/\[.*?\]/g, ''));  // URL を取得
+    //   const atag= `<a href="${url}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${ref['source']}',true)" onmouseout="referenceHover('${ref['source']}',false)" >${p1}[${p2}]</a>`;
+    //   return atag     // 置換するリンクを生成
+    // });
+    //参照フォーマット(["text"@N,@N2,@N3])に対応
+    contentHTML=contentHTML.replace(/\[.*?\]/g, (match) => {
+      // マッチした部分から[]を取り除く
+      let content = match.slice(1, -1);
+      let p1= content.split("@")[0].replace(/"/g, '');
+      //contentの空白を削除
+      let p2= content.split("@")[1].replace(/\s+/g, '');
       const ref=references[p2-1];
       const hilighttexturl=ref["source"].split("#:~:text=")[0]+"#:~:text="+p1;
       const url = replaceHighlightLink(hilighttexturl, contentHTML.replace(/\[.*?\]/g, ''));  // URL を取得
-      const atag= `<a href="${url}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${ref['source']}',true)" onmouseout="referenceHover('${ref['source']}',false)" >[${p1}]</a>`;
+      const atag= `<a href="${url}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${ref['source']}',true)" onmouseout="referenceHover('${ref['source']}',false)" >${p1}[${p2}]</a>`;
       return atag     // 置換するリンクを生成
     });
 
