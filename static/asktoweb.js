@@ -171,6 +171,7 @@ ASKTOWEB_ASSISTANT_DOM =
 }
 .contact .name {
   font-weight: 500;
+  margin-top:7px;
   margin-bottom: 2.0px;
   display: flex;
   align-content: stretch;
@@ -180,8 +181,12 @@ ASKTOWEB_ASSISTANT_DOM =
 .contact .message,
 .contact .seen {
   font-size: 9.6px;
-  color: #999;
+  color: gray;
 }
+ .contact .seen svg{
+  opacity:0.5;
+  transform:translateY(1.5px);
+ }
 .contact .closebtn{
   box-sizing: border-box;
   border: none;
@@ -232,6 +237,21 @@ ASKTOWEB_ASSISTANT_DOM =
   flex-shrink: 0;
   margin: 16.0px;
   box-sizing: border-box;
+}
+  
+.ask-to-website-chat::after{
+  content:"A";
+  position:absolute;
+  z-index:3;
+  left:0;
+  top:0;
+  margin:0;
+  padding:0;
+  font-family: Red Hat Display, sans-serif;
+  font-weight: 1000;
+  transform:translate(-3px,-40px);
+  font-size: 120.0px;
+  color: rgba(0,0,0,.05);
 }
 .ask-to-website-chat .messages {
   padding: 16px 16px 32px 16px;
@@ -380,6 +400,8 @@ ASKTOWEB_ASSISTANT_DOM =
   /* Firefox */
 }
 .asktowebsuggestion .suggestion a {
+  color:black;
+  text-decoration: none;
   display: inline-block;
   margin-right: 5px;
 }
@@ -392,7 +414,6 @@ ASKTOWEB_ASSISTANT_DOM =
  .asktowebsuggestion:hover .suggestion {
   white-space: normal;
   overflow-wrap: anywhere;
-  height: auto;
 }
 .ask-to-website-chat .asktowebpost {
     flex-shrink: 0;
@@ -515,7 +536,11 @@ font-size: 16.0px;
   /*background-image: url("https://i.ibb.co/k6q414b/2024-06-13-235132.png");*/
   /*background-image: url("https://i.ibb.co/pbWCkhM/1.png");*/
   /*background-image: url("https://i.ibb.co/VvZmGxw/2024-06-17-081619.png");*/
-  background-image: url("https://i.ibb.co/D44kXwy/2024-06-17-082934.png");
+  background-image: url("https://i.ibb.co/Ny986qn/1.png");
+  background-size: 180%;
+  background-position: center;
+  background-repeat: no-repeat;
+
 }
 
 @keyframes fadeInUp {
@@ -757,7 +782,7 @@ class ASKTOWEB_ASSISTANT {
         e.preventDefault();
         if(this.hiddeninput_complete.innerText.length>0){
           this.asktowebtextarea.value +=  this.hiddeninput_complete.innerText;
-          this.hiddeninput_user.value += this.hiddeninput_complete.innerText;
+          this.hiddeninput_user.innerText += this.hiddeninput_complete.innerText+ "\u200b";
           this.hiddeninput_complete.innerText = "";
         }
       }
@@ -771,7 +796,11 @@ class ASKTOWEB_ASSISTANT {
     this.suggestion.querySelector("p").innerText = l("suggestion");
     this.asktowebtextarea.addEventListener('input', e => {
       this.hiddeninput_user.innerText = e.target.value + "\u200b";
-      this.suggestion.style.bottom = "calc(60px +"+ this.hiddeninput.clientHeight + "px)";
+      if(this.hiddeninput.clientHeight>50){
+        this.suggestion.style.paddingBottom = "16px";
+      }else{
+        this.suggestion.style.paddingBottom = "0";
+      }
       this.hiddeninput_complete.innerText = "";
       if(e.target.value.length>1){
         this.querypages(e.target.value);
@@ -821,7 +850,13 @@ class ASKTOWEB_ASSISTANT {
         this.completequery(this.asktowebtextarea.value);
         return;
       }
-      this.hiddeninput_complete.innerText = data.substring(query.length);
+
+      this.hiddeninput_complete.innerText = data.replaceAll(query,"");
+      if(this.hiddeninput.clientHeight>50){
+        this.suggestion.style.paddingBottom = "16px";
+      }else{
+        this.suggestion.style.paddingBottom = "0";
+      }
       console.log(data);
     })
     .catch(error => {
@@ -1037,9 +1072,16 @@ class ASKTOWEB_ASSISTANT {
     contentHTML=contentHTML.replace(/\[.*?\]/g, (match) => {
       // マッチした部分から[]を取り除く
       let content = match.slice(1, -1);
-      let p1= content.split("@")[0].replace(/"/g, '');
+      let p1,p2;
+      if(!content.includes("@")){
+        //contentの中に含まれている数字を一つ見つける
+         p1= "";
+         p2= content.match(/\d+/);
+      }else{
+       p1= content.split("@")[0].replace(/"/g, '');
       //contentの空白を削除
-      let p2= content.split("@")[1].replace(/\s+/g, '');
+       p2= content.split("@")[1].replace(/\s+/g, '');
+      }
       const ref=references[p2-1];
       const hilighttexturl=ref["source"].split("#:~:text=")[0]+"#:~:text="+p1;
       const url = replaceHighlightLink(hilighttexturl, contentHTML.replace(/\[.*?\]/g, ''));  // URL を取得
