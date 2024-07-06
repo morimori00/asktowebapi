@@ -590,8 +590,9 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
         localStorage.setItem("DIKSA", "{sessionid}");
         var highlight = document.querySelector('.asktoweb-highlight');
         const messageBox = document.getElementById('message-box');
-
-        if (highlight && messageBox) {{
+        
+        const mediaQuery = window.matchMedia('(max-width: 480px)')
+        if (highlight && messageBox && !mediaQuery.matches ) {{
             const highlightRect = highlight.getBoundingClientRect();
             const windowWidth = window.innerWidth;
 
@@ -676,6 +677,13 @@ def highlight_and_scroll(url, target_text="", message="", sessionid=""):
             }}
             #asktoweb-banner a:hover::after {{
                 margin-left: 10px;
+            }}
+            @media screen and (max-width: 480px) {{
+                #asktoweb-banner {{
+                    font-size: 7px;
+                    line-height: 10px;
+                }}
+
             }}
             </style>
             <div id="asktoweb-banner">

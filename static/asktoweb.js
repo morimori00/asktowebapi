@@ -144,6 +144,7 @@ ASKTOWEB_ASSISTANT_DOM =
   position: fixed;
   bottom: 100px;
   right: 30px;
+  width: 384.0px;
   display: none;
   line-height: normal;
   z-index:99999999999;
@@ -214,7 +215,7 @@ ASKTOWEB_ASSISTANT_DOM =
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 384.0px;
+  width: 100%;
   height: 608.0px;
   z-index: 2;
   box-sizing: border-box;
@@ -393,10 +394,19 @@ ASKTOWEB_ASSISTANT_DOM =
   color:black;
   text-decoration: none;
   display: inline-block;
-  border:1px solid #666;
+  border:1px solid #999;
   padding:2px;
   border-radius: 7px;
   margin-right: 5px;
+  background: #f7f7f7;
+}
+.suggestion a .suggestion-fav {
+  width:15px;
+  height:15px;
+  display:inline-block;
+  background-repeat:no-repeat;
+  background-size:contain;
+  border-radius:1px;
 }
 .asktowebsuggestion .suggestion::-webkit-scrollbar {
   display: none;
@@ -634,6 +644,22 @@ mask-size: 200%;
   100% {
     transform: rotate(720deg);
     opacity: 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .ask-to-website{
+    right: 5px;
+    bottom: 5px;
+  }
+  .ask-to-website-center {
+    width: 100%;
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
+  }
+  .ask-to-website-chat .contact .closebtn {
+    right: -15px;
   }
 }
 
@@ -892,10 +918,11 @@ class ASKTOWEB_ASSISTANT {
         for (let i = 0; i < data.length; i++) {
           let a = document.createElement('a');
           a.href = data[i]["url"];
+          a.innerHTML = `<div class="suggestion-fav" style="background-image:url('https://www.google.com/s2/favicons?domain=${data[i]["url"]}');"></div>`;
           if(data[i]["url"].includes("#:~:text=") && data[i]["url"].split("#:~:text=")[1].length>3){
-            a.innerText = data[i]["url"].split("#:~:text=")[1];
+            a.innerHTML += data[i]["url"].split("#:~:text=")[1];
           }else{
-            a.innerText = data[i]["title"];
+            a.innerHTML += data[i]["title"];
           }
           a.target = "_blank";
           this.suggestion.querySelector(".suggestion").appendChild(a);
