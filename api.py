@@ -716,26 +716,26 @@ def fetch_html(url: str, highlight: str = "vbieocwec", message: str = "", sessio
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Request error: {e}")
     
-from langchain_groq import ChatGroq
-chatGroq = ChatGroq(
-    temperature=0,
-    model="llama3-70b-8192"
-)
-@app.get("/complete/")
-def complete(query: str):
-    prompt = [
-        SystemMessage(content="Complete user questions. If the question is already complete, output the question as is."),
-        HumanMessage(content="この製品は無"),
-        AIMessage(content="この製品は無料ですか？"),
-        HumanMessage(content="How much"),
-        AIMessage(content="How much does this product cost?"),
-        HumanMessage(content="Is there a student discount for this service?"),
-        AIMessage(content="Is there a student discount for this service?"),
-        HumanMessage(content="カスタマ"),
-        AIMessage(content="カスタマーサポートに問い合わせる方法は？"),
-        HumanMessage(content=query),
-    ]
-    return chatGroq.invoke(prompt).content
+# from langchain_groq import ChatGroq
+# chatGroq = ChatGroq(
+#     temperature=0,
+#     model="llama3-70b-8192"
+# )
+# @app.get("/complete/")
+# def complete(query: str):
+#     prompt = [
+#         SystemMessage(content="Complete user questions. If the question is already complete, output the question as is."),
+#         HumanMessage(content="この製品は無"),
+#         AIMessage(content="この製品は無料ですか？"),
+#         HumanMessage(content="How much"),
+#         AIMessage(content="How much does this product cost?"),
+#         HumanMessage(content="Is there a student discount for this service?"),
+#         AIMessage(content="Is there a student discount for this service?"),
+#         HumanMessage(content="カスタマ"),
+#         AIMessage(content="カスタマーサポートに問い合わせる方法は？"),
+#         HumanMessage(content=query),
+#     ]
+#     return chatGroq.invoke(prompt).content
 
 if __name__ == "__main__":
     uvicorn.run(app)
