@@ -737,5 +737,5 @@ def read_root():
 # #     ]
 # #     return chatGroq.invoke(prompt).content
 
-# if __name__ == "__main__":
-#     uvicorn.run(app)
+if __name__ == "__main__":
+    uvicorn.run(app)
