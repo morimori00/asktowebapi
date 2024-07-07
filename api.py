@@ -379,363 +379,363 @@ async def Askme(query,chat_history,website,sesstionId):
 def read_root():
     return {"Hello": "World"}
 
-class StreamRequest(BaseModel):
-    """Request body for streaming."""
-    question: str
-    sesstionId: str
-    website: str
+# class StreamRequest(BaseModel):
+#     """Request body for streaming."""
+#     question: str
+#     sesstionId: str
+#     website: str
 
-async def say_error(message):
-    res={"type":"text","value":message}
-    yield f"data: {json.dumps(res)}\n\n"
-    yield "data: {\"end\": true}\n\n"
+# async def say_error(message):
+#     res={"type":"text","value":message}
+#     yield f"data: {json.dumps(res)}\n\n"
+#     yield "data: {\"end\": true}\n\n"
 
-@app.post("/stream")
-def stream(body: StreamRequest):
-    query = body.question
-    if len(query)<3 or len(query)>1000:
-        say_error("Please enter a question between 3 and 1000 characters.")
-        return 
-    sesstionId = body.sesstionId
-    website=body.website
-    chat_history = load_chat_history(sesstionId)[0]
-    return StreamingResponse(Askme(query,chat_history,website,sesstionId), media_type="text/event-stream")
+# @app.post("/stream")
+# def stream(body: StreamRequest):
+#     query = body.question
+#     if len(query)<3 or len(query)>1000:
+#         say_error("Please enter a question between 3 and 1000 characters.")
+#         return 
+#     sesstionId = body.sesstionId
+#     website=body.website
+#     chat_history = load_chat_history(sesstionId)[0]
+#     return StreamingResponse(Askme(query,chat_history,website,sesstionId), media_type="text/event-stream")
 
-@app.post("/gethistory")
-def gethistory(sesstionId: str):
-    chat_history  = load_chat_history(sesstionId)
-    return {"chat_history": chat_history[0], "date": chat_history[1]}
+# @app.post("/gethistory")
+# def gethistory(sesstionId: str):
+#     chat_history  = load_chat_history(sesstionId)
+#     return {"chat_history": chat_history[0], "date": chat_history[1]}
 
-@app.post("/resethistory")
-def resethistory(sesstionId: str):
-    chat_history= load_chat_history(sesstionId)[0]
-    if chat_history==[]:
-        return {"chat_history": []}
-    chat_history = []
-    save_chat_history(chat_history, sesstionId)
-    return {"chat_history": chat_history}
+# @app.post("/resethistory")
+# def resethistory(sesstionId: str):
+#     chat_history= load_chat_history(sesstionId)[0]
+#     if chat_history==[]:
+#         return {"chat_history": []}
+#     chat_history = []
+#     save_chat_history(chat_history, sesstionId)
+#     return {"chat_history": chat_history}
 
-@app.get("/querypages")
-def querypages(query: str, website: str):
-    vectorstore = PineconeVectorStore(index_name=index_name, embedding=embeddings, namespace=website)
-    retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.9,"k":2})
-    documents = retriever.invoke(query)
-    data = [{"page_content": doc.page_content, "url": doc.metadata["source"],"title":doc.metadata["title"]} for doc in documents]
-    return data
+# @app.get("/querypages")
+# def querypages(query: str, website: str):
+#     vectorstore = PineconeVectorStore(index_name=index_name, embedding=embeddings, namespace=website)
+#     retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.9,"k":2})
+#     documents = retriever.invoke(query)
+#     data = [{"page_content": doc.page_content, "url": doc.metadata["source"],"title":doc.metadata["title"]} for doc in documents]
+#     return data
 
-##ハイライトページの作成
-import requests
-from html import escape
-from urllib.parse import urljoin,unquote
-def fix_relative_paths(html_content, base_url):
-    """
-    HTML内の相対パスを絶対パスに変換します
-    """
-    # リンクタグを修正
-    html_content = re.sub(r'(<(?:link|script|img)[^>]+(?:href|src)=")([^:"]+)"', lambda m: f'{m.group(1)}{urljoin(base_url, m.group(2))}"', html_content)
-    # CSSインポートを修正
-    html_content = re.sub(r'(url\()([\'"]?)([^:\)\'"]+)([\'"]?\))', lambda m: f'{m.group(1)}{m.group(2)}{urljoin(base_url, m.group(3))}{m.group(4)}', html_content)
-    return html_content
+# ##ハイライトページの作成
+# import requests
+# from html import escape
+# from urllib.parse import urljoin,unquote
+# def fix_relative_paths(html_content, base_url):
+#     """
+#     HTML内の相対パスを絶対パスに変換します
+#     """
+#     # リンクタグを修正
+#     html_content = re.sub(r'(<(?:link|script|img)[^>]+(?:href|src)=")([^:"]+)"', lambda m: f'{m.group(1)}{urljoin(base_url, m.group(2))}"', html_content)
+#     # CSSインポートを修正
+#     html_content = re.sub(r'(url\()([\'"]?)([^:\)\'"]+)([\'"]?\))', lambda m: f'{m.group(1)}{m.group(2)}{urljoin(base_url, m.group(3))}{m.group(4)}', html_content)
+#     return html_content
 
 
-#return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
+# #return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
 
-def highlight_text_across_tags(html_text, target_text):
-    def split_html_text(html_text):
-        splited_text=[]
-        splited_text_start_pos=[]
-        pos=0
-        status = 2 # 0:テキスト 1:タグ開始 2:タグ終了 3:除外タグ開始 4:除外タグ終了 5:除外タグ終了後
-        extract_tag=["header","footer","script","style"]
-        body_start_pos = html_text.find("<body>")
-        for s in html_text:
-            if pos < body_start_pos+6:
-                pos=pos+1
-                continue
-            if status == 0:
-                #タグの外
-                if s=="<":
-                    #タグの開始
-                    status = 1
-                    #除外タグならstatus=3
-                    tagname=html_text[pos+1:pos+10].strip()
-                    if any(tag in tagname for tag in extract_tag):
-                        status = 3
-                elif not re.match(r'[\s\u3000]', s):
-                    #有効な文字なのでテキストとして追加
-                    splited_text[-1] += s
-            elif status == 2:
-                #タグ内のテキストの開始時
-                if s != "<" and not re.match(r'[\s\u3000]', s):
-                    #有効な文字なので新しいチャンクのテキストとして追加
-                    splited_text.append(s)
-                    splited_text_start_pos.append(pos)
-                    status = 0
-                elif s=="<":
-                    #タグの開始
-                    status = 1
-                    #除外タグならstatus=3
-                    tagname=html_text[pos+1:pos+10].strip()
-                    if any(tag in tagname for tag in extract_tag):
-                        status = 3
-            elif status == 1:
-                #タグの開始
-                if s==">":
-                    #タグの終了
-                    status = 2
-            elif status == 3:
-                #除外タグの開始
-                if s==">":
-                    #除外タグの終了
-                    status = 4
-            elif status == 4:
-                #除外タグの終了
-                if s == "<":
-                    #次のタグの開始
-                    status = 5
-            elif status == 5:
-                #次のタグの開始
-                if s == ">":
-                    #次のタグの終了
-                    status = 2
-            pos=pos+1
-        return splited_text, splited_text_start_pos
-    # HTMLテキストをタグごとに分割して配列で取得
-    # html_text = re.sub(r'[\n\s]', '', html_text)
-    #全角スペースを除外
-    # html_text = re.sub(r'[\u3000]', '', html_text)
-    tag_texts,tag_text_start_pos = split_html_text(html_text)
-    joined_text = ''.join(tag_texts)
-    #target_textの開始位置と終了位置を取得
-    start_pos = joined_text.find(target_text)
+# def highlight_text_across_tags(html_text, target_text):
+#     def split_html_text(html_text):
+#         splited_text=[]
+#         splited_text_start_pos=[]
+#         pos=0
+#         status = 2 # 0:テキスト 1:タグ開始 2:タグ終了 3:除外タグ開始 4:除外タグ終了 5:除外タグ終了後
+#         extract_tag=["header","footer","script","style"]
+#         body_start_pos = html_text.find("<body>")
+#         for s in html_text:
+#             if pos < body_start_pos+6:
+#                 pos=pos+1
+#                 continue
+#             if status == 0:
+#                 #タグの外
+#                 if s=="<":
+#                     #タグの開始
+#                     status = 1
+#                     #除外タグならstatus=3
+#                     tagname=html_text[pos+1:pos+10].strip()
+#                     if any(tag in tagname for tag in extract_tag):
+#                         status = 3
+#                 elif not re.match(r'[\s\u3000]', s):
+#                     #有効な文字なのでテキストとして追加
+#                     splited_text[-1] += s
+#             elif status == 2:
+#                 #タグ内のテキストの開始時
+#                 if s != "<" and not re.match(r'[\s\u3000]', s):
+#                     #有効な文字なので新しいチャンクのテキストとして追加
+#                     splited_text.append(s)
+#                     splited_text_start_pos.append(pos)
+#                     status = 0
+#                 elif s=="<":
+#                     #タグの開始
+#                     status = 1
+#                     #除外タグならstatus=3
+#                     tagname=html_text[pos+1:pos+10].strip()
+#                     if any(tag in tagname for tag in extract_tag):
+#                         status = 3
+#             elif status == 1:
+#                 #タグの開始
+#                 if s==">":
+#                     #タグの終了
+#                     status = 2
+#             elif status == 3:
+#                 #除外タグの開始
+#                 if s==">":
+#                     #除外タグの終了
+#                     status = 4
+#             elif status == 4:
+#                 #除外タグの終了
+#                 if s == "<":
+#                     #次のタグの開始
+#                     status = 5
+#             elif status == 5:
+#                 #次のタグの開始
+#                 if s == ">":
+#                     #次のタグの終了
+#                     status = 2
+#             pos=pos+1
+#         return splited_text, splited_text_start_pos
+#     # HTMLテキストをタグごとに分割して配列で取得
+#     # html_text = re.sub(r'[\n\s]', '', html_text)
+#     #全角スペースを除外
+#     # html_text = re.sub(r'[\u3000]', '', html_text)
+#     tag_texts,tag_text_start_pos = split_html_text(html_text)
+#     joined_text = ''.join(tag_texts)
+#     #target_textの開始位置と終了位置を取得
+#     start_pos = joined_text.find(target_text)
     
-    while start_pos == -1 and len(target_text) > 2:
-        target_text = target_text[:-1]
-        start_pos = joined_text.find(target_text)
-    print("target_text:"+target_text)
-    if start_pos == -1:
-        return html_text
-    end_pos = start_pos + len(target_text)
-    #n番目の文字が何番目のタグの中にあるかを調べる
-    def get_tag_index(pos,tag_texts):
-        index = 0
-        for tag_text in tag_texts:
-            # タグの中に位置が含まれる場合はそのタグの位置を返す
-            if pos < len(tag_text):
-                return index
-            pos -= len(tag_text)
-            index += 1
-        return -1
-    splited_target_text = [target_text[0]]
-    splited_target_text_index=[get_tag_index(start_pos, tag_texts)]
-    splited_target_text_start_pos_in_index=[tag_texts[splited_target_text_index[0]].find(target_text[0])]
-    tag_index=get_tag_index(start_pos, tag_texts)
-    for i in range(1, len(target_text)):
-        if tag_index == get_tag_index(start_pos + i, tag_texts):
-            splited_target_text[-1] += target_text[i]
-        else:
-            splited_target_text.append(target_text[i])
-            splited_target_text_index.append(get_tag_index(start_pos + i, tag_texts))
-            splited_target_text_start_pos_in_index.append(tag_texts[splited_target_text_index[-1]].find(target_text[i]))
-            tag_index = get_tag_index(start_pos + i, tag_texts)
+#     while start_pos == -1 and len(target_text) > 2:
+#         target_text = target_text[:-1]
+#         start_pos = joined_text.find(target_text)
+#     print("target_text:"+target_text)
+#     if start_pos == -1:
+#         return html_text
+#     end_pos = start_pos + len(target_text)
+#     #n番目の文字が何番目のタグの中にあるかを調べる
+#     def get_tag_index(pos,tag_texts):
+#         index = 0
+#         for tag_text in tag_texts:
+#             # タグの中に位置が含まれる場合はそのタグの位置を返す
+#             if pos < len(tag_text):
+#                 return index
+#             pos -= len(tag_text)
+#             index += 1
+#         return -1
+#     splited_target_text = [target_text[0]]
+#     splited_target_text_index=[get_tag_index(start_pos, tag_texts)]
+#     splited_target_text_start_pos_in_index=[tag_texts[splited_target_text_index[0]].find(target_text[0])]
+#     tag_index=get_tag_index(start_pos, tag_texts)
+#     for i in range(1, len(target_text)):
+#         if tag_index == get_tag_index(start_pos + i, tag_texts):
+#             splited_target_text[-1] += target_text[i]
+#         else:
+#             splited_target_text.append(target_text[i])
+#             splited_target_text_index.append(get_tag_index(start_pos + i, tag_texts))
+#             splited_target_text_start_pos_in_index.append(tag_texts[splited_target_text_index[-1]].find(target_text[i]))
+#             tag_index = get_tag_index(start_pos + i, tag_texts)
 
-    # splited_target_text各要素のHTMLでの開始位置を取得
-    splited_target_text_start_pos_in_html=[]
-    for i in range(len(splited_target_text)):
-        splited_target_text_start_pos_in_html.append(tag_text_start_pos[splited_target_text_index[i]]+splited_target_text_start_pos_in_index[i])
+#     # splited_target_text各要素のHTMLでの開始位置を取得
+#     splited_target_text_start_pos_in_html=[]
+#     for i in range(len(splited_target_text)):
+#         splited_target_text_start_pos_in_html.append(tag_text_start_pos[splited_target_text_index[i]]+splited_target_text_start_pos_in_index[i])
    
-    #HTMLの取得した開始位置に<higlight>を挿入
-    offset=0
-    for i in range(len(splited_target_text)):
-        starttag=f'<span style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">'
-        endtag="</span>"
-        html_text = html_text[:splited_target_text_start_pos_in_html[i]+offset] + starttag + html_text[splited_target_text_start_pos_in_html[i]+offset:]
-        offset+=len(starttag)
-        html_text = html_text[:splited_target_text_start_pos_in_html[i]+offset+len(splited_target_text[i])] + endtag + html_text[splited_target_text_start_pos_in_html[i]+offset+len(splited_target_text[i]):]
-        offset+=len(endtag)
-    return html_text
+#     #HTMLの取得した開始位置に<higlight>を挿入
+#     offset=0
+#     for i in range(len(splited_target_text)):
+#         starttag=f'<span style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">'
+#         endtag="</span>"
+#         html_text = html_text[:splited_target_text_start_pos_in_html[i]+offset] + starttag + html_text[splited_target_text_start_pos_in_html[i]+offset:]
+#         offset+=len(starttag)
+#         html_text = html_text[:splited_target_text_start_pos_in_html[i]+offset+len(splited_target_text[i])] + endtag + html_text[splited_target_text_start_pos_in_html[i]+offset+len(splited_target_text[i]):]
+#         offset+=len(endtag)
+#     return html_text
 
-def highlight_and_scroll(url, target_text="", message="", sessionid=""):
-    # URLからHTMLを取得
-    response = requests.get(url)
-    html_content = response.text
-    # HTMLの相対パスを修正
-    html_content = fix_relative_paths(html_content, url)
+# def highlight_and_scroll(url, target_text="", message="", sessionid=""):
+#     # URLからHTMLを取得
+#     response = requests.get(url)
+#     html_content = response.text
+#     # HTMLの相対パスを修正
+#     html_content = fix_relative_paths(html_content, url)
     
-    if sessionid == "":
-        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        sessionid = "".join([chars[ord(os.urandom[1]) % len(chars)] for i in range(20)])
+#     if sessionid == "":
+#         chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+#         sessionid = "".join([chars[ord(os.urandom[1]) % len(chars)] for i in range(20)])
 
-    # 特定の文字列を探してspanタグで囲む
-    # highlight_count = 0
-    # pattern = re.compile(re.escape(unquote(target_text)), re.IGNORECASE)
+#     # 特定の文字列を探してspanタグで囲む
+#     # highlight_count = 0
+#     # pattern = re.compile(re.escape(unquote(target_text)), re.IGNORECASE)
     
-    # def replace_func(match):
-    #     nonlocal highlight_count
-    #     highlight_count += 1
-    #     return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
+#     # def replace_func(match):
+#     #     nonlocal highlight_count
+#     #     highlight_count += 1
+#     #     return f'<span id="highlight-{highlight_count}" style="box-shadow: inset 0 -0.7em 0 rgb(255 203 86);" class="asktoweb-highlight">{escape(match.group(0))}</span>'
     
-    # modified_content = pattern.sub(replace_func, html_content)
-    modified_content = highlight_text_across_tags(html_content, target_text)
-    # メッセージボックスを追加
-    message_box_html = f'''
-    <div id="message-box" style="position: absolute; background-color: white; color: black; padding: 10px; border-radius: 10px;display:none; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); max-width: 400px; z-index: 1000; transition: opacity 0.3s ease;" 
-    onmouseover="this.style.opacity='0';" onmouseout="this.style.opacity='1';">{unquote(message)}</div>
-    '''
-    modified_content = modified_content.replace('</body>', message_box_html + '</body>')
+#     # modified_content = pattern.sub(replace_func, html_content)
+#     modified_content = highlight_text_across_tags(html_content, target_text)
+#     # メッセージボックスを追加
+#     message_box_html = f'''
+#     <div id="message-box" style="position: absolute; background-color: white; color: black; padding: 10px; border-radius: 10px;display:none; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); max-width: 400px; z-index: 1000; transition: opacity 0.3s ease;" 
+#     onmouseover="this.style.opacity='0';" onmouseout="this.style.opacity='1';">{unquote(message)}</div>
+#     '''
+#     modified_content = modified_content.replace('</body>', message_box_html + '</body>')
 
-    # スクロール用のJavaScriptを追加
-    script_content = f"""
-    document.addEventListener('DOMContentLoaded', function() {{
-        localStorage.setItem("DIKSA", "{sessionid}");
-        var highlight = document.querySelector('.asktoweb-highlight');
-        const messageBox = document.getElementById('message-box');
+#     # スクロール用のJavaScriptを追加
+#     script_content = f"""
+#     document.addEventListener('DOMContentLoaded', function() {{
+#         localStorage.setItem("DIKSA", "{sessionid}");
+#         var highlight = document.querySelector('.asktoweb-highlight');
+#         const messageBox = document.getElementById('message-box');
         
-        const mediaQuery = window.matchMedia('(max-width: 480px)')
-        if (highlight && messageBox && !mediaQuery.matches ) {{
-            const highlightRect = highlight.getBoundingClientRect();
-            const windowWidth = window.innerWidth;
+#         const mediaQuery = window.matchMedia('(max-width: 480px)')
+#         if (highlight && messageBox && !mediaQuery.matches ) {{
+#             const highlightRect = highlight.getBoundingClientRect();
+#             const windowWidth = window.innerWidth;
 
-            // 画面の左右どちらにスペースがあるか判断
-            const spaceOnRight = windowWidth - (highlightRect.right + 10);
-            const spaceOnLeft = highlightRect.left - 10;
+#             // 画面の左右どちらにスペースがあるか判断
+#             const spaceOnRight = windowWidth - (highlightRect.right + 10);
+#             const spaceOnLeft = highlightRect.left - 10;
 
-            let left, top;
+#             let left, top;
 
-            if (spaceOnRight > spaceOnLeft) {{
-                // 右側にスペースがある場合
-                left = highlightRect.right + 10;
-            }} else {{
-                // 左側にスペースがある場合
-                left = highlightRect.left - messageBox.offsetWidth - 10;
-            }}
+#             if (spaceOnRight > spaceOnLeft) {{
+#                 // 右側にスペースがある場合
+#                 left = highlightRect.right + 10;
+#             }} else {{
+#                 // 左側にスペースがある場合
+#                 left = highlightRect.left - messageBox.offsetWidth - 10;
+#             }}
 
-            top = highlightRect.top;
+#             top = highlightRect.top;
 
-            // メッセージボックスの位置とスタイルを設定
-            messageBox.style.display = 'block';
-            messageBox.style.left = `${{left}}px`;
-            messageBox.style.top = `${{top}}px`;
-            messageBox.style.display = 'block';
-            messageBox.style.opacity = '1';
-            messageBox.scrollIntoView({{behavior: 'smooth', block: 'center'}});
-        }}
+#             // メッセージボックスの位置とスタイルを設定
+#             messageBox.style.display = 'block';
+#             messageBox.style.left = `${{left}}px`;
+#             messageBox.style.top = `${{top}}px`;
+#             messageBox.style.display = 'block';
+#             messageBox.style.opacity = '1';
+#             messageBox.scrollIntoView({{behavior: 'smooth', block: 'center'}});
+#         }}
 
-        // リンクのクリックイベントを監視
-        document.querySelectorAll('a').forEach(function(link) {{
-            link.addEventListener('click', function(event) {{
-                const href = link.getAttribute('href');
-                if (href) {{
-                    event.preventDefault();
-                    let absoluteUrl = "";
-                    if (!href.startsWith('http') && !href.startsWith('https')){{
-                        absoluteUrl = new URL(href, window.location.href).href;
-                    }}else{{
-                        absoluteUrl = href;
-                    }}
-                    window.location.href = "https://api.asktoweb.com/highlight?url="+absoluteUrl+"&sessionid="+localStorage.getItem("DIKSA");
-                }}
-            }});
-        }});
+#         // リンクのクリックイベントを監視
+#         document.querySelectorAll('a').forEach(function(link) {{
+#             link.addEventListener('click', function(event) {{
+#                 const href = link.getAttribute('href');
+#                 if (href) {{
+#                     event.preventDefault();
+#                     let absoluteUrl = "";
+#                     if (!href.startsWith('http') && !href.startsWith('https')){{
+#                         absoluteUrl = new URL(href, window.location.href).href;
+#                     }}else{{
+#                         absoluteUrl = href;
+#                     }}
+#                     window.location.href = "https://api.asktoweb.com/highlight?url="+absoluteUrl+"&sessionid="+localStorage.getItem("DIKSA");
+#                 }}
+#             }});
+#         }});
 
-         // Shadow DOMにバナーを追加
-        const bannerContainer = document.createElement('div');
-        const shadowRoot = bannerContainer.attachShadow({{ mode: 'open' }});
-        const bannerContent = `
-        <style>
-            #asktoweb-banner {{
-                background-color: #ffcc00; /* Green */
-                color: black;
-                text-align: center;
-                padding: 7px;
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-                z-index: 1001;
-                font-family: 'Roboto', sans-serif;
-                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }}
-            #asktoweb-banner a {{
-                color: blue; /* Accent color */
-                text-decoration: none;
-                font-weight: bold;
-                margin-left: 10px;
-                display: inline-flex;
-                align-items: center;
-                transition: color 0.3s;
-            }}
-            #asktoweb-banner a:hover {{
-               color:#00008B;
-            }}
-            #asktoweb-banner a::after {{
-                content: '→';
-                margin-left: 5px;
-                transition: margin-left 0.3s;
-            }}
-            #asktoweb-banner a:hover::after {{
-                margin-left: 10px;
-            }}
-            @media screen and (max-width: 480px) {{
-                #asktoweb-banner {{
-                    font-size: 7px;
-                    line-height: 10px;
-                }}
+#          // Shadow DOMにバナーを追加
+#         const bannerContainer = document.createElement('div');
+#         const shadowRoot = bannerContainer.attachShadow({{ mode: 'open' }});
+#         const bannerContent = `
+#         <style>
+#             #asktoweb-banner {{
+#                 background-color: #ffcc00; /* Green */
+#                 color: black;
+#                 text-align: center;
+#                 padding: 7px;
+#                 position: fixed;
+#                 bottom: 0;
+#                 width: 100%;
+#                 z-index: 1001;
+#                 font-family: 'Roboto', sans-serif;
+#                 box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+#                 display: flex;
+#                 align-items: center;
+#                 justify-content: center;
+#             }}
+#             #asktoweb-banner a {{
+#                 color: blue; /* Accent color */
+#                 text-decoration: none;
+#                 font-weight: bold;
+#                 margin-left: 10px;
+#                 display: inline-flex;
+#                 align-items: center;
+#                 transition: color 0.3s;
+#             }}
+#             #asktoweb-banner a:hover {{
+#                color:#00008B;
+#             }}
+#             #asktoweb-banner a::after {{
+#                 content: '→';
+#                 margin-left: 5px;
+#                 transition: margin-left 0.3s;
+#             }}
+#             #asktoweb-banner a:hover::after {{
+#                 margin-left: 10px;
+#             }}
+#             @media screen and (max-width: 480px) {{
+#                 #asktoweb-banner {{
+#                     font-size: 7px;
+#                     line-height: 10px;
+#                 }}
 
-            }}
-            </style>
-            <div id="asktoweb-banner">
-                このページはasktowebの参照機能によって表示されています　<a href="{escape(url)}" target="_blank">実際のページに移動</a>
-            </div>
-        `;
-        shadowRoot.innerHTML = bannerContent;
-        document.body.appendChild(bannerContainer);
+#             }}
+#             </style>
+#             <div id="asktoweb-banner">
+#                 このページはasktowebの参照機能によって表示されています　<a href="{escape(url)}" target="_blank">実際のページに移動</a>
+#             </div>
+#         `;
+#         shadowRoot.innerHTML = bannerContent;
+#         document.body.appendChild(bannerContainer);
 
-    }});
+#     }});
 
     
-    """
-    script_tag = f'<script>{script_content}</script>'
-    modified_content = modified_content.replace('</body>', script_tag + '</body>')
+#     """
+#     script_tag = f'<script>{script_content}</script>'
+#     modified_content = modified_content.replace('</body>', script_tag + '</body>')
 
-    asktoweb_script_tag = '<script src="https://api.asktoweb.com/static/asktoweb.js"></script>'
-    modified_content = modified_content.replace('</head>', asktoweb_script_tag + '</head>')
+#     asktoweb_script_tag = '<script src="https://api.asktoweb.com/static/asktoweb.js"></script>'
+#     modified_content = modified_content.replace('</head>', asktoweb_script_tag + '</head>')
 
-    # 修正されたHTMLを返す
-    return modified_content
+#     # 修正されたHTMLを返す
+#     return modified_content
 
-@app.get("/highlight/")
-def fetch_html(url: str, highlight: str = "vbieocwec", message: str = "", sessionid: str = ""):
-    try:
-        modified_html = highlight_and_scroll(url, highlight, message, sessionid)
-        return Response(content=modified_html, media_type="text/html")
-    except requests.HTTPError as e:
-        raise HTTPException(status_code=response.status_code, detail=f"HTTP error: {e}")
-    except requests.RequestException as e:
-        raise HTTPException(status_code=500, detail=f"Request error: {e}")
+# @app.get("/highlight/")
+# def fetch_html(url: str, highlight: str = "vbieocwec", message: str = "", sessionid: str = ""):
+#     try:
+#         modified_html = highlight_and_scroll(url, highlight, message, sessionid)
+#         return Response(content=modified_html, media_type="text/html")
+#     except requests.HTTPError as e:
+#         raise HTTPException(status_code=response.status_code, detail=f"HTTP error: {e}")
+#     except requests.RequestException as e:
+#         raise HTTPException(status_code=500, detail=f"Request error: {e}")
     
-# from langchain_groq import ChatGroq
-# chatGroq = ChatGroq(
-#     temperature=0,
-#     model="llama3-70b-8192"
-# )
-# @app.get("/complete/")
-# def complete(query: str):
-#     prompt = [
-#         SystemMessage(content="Complete user questions. If the question is already complete, output the question as is."),
-#         HumanMessage(content="この製品は無"),
-#         AIMessage(content="この製品は無料ですか？"),
-#         HumanMessage(content="How much"),
-#         AIMessage(content="How much does this product cost?"),
-#         HumanMessage(content="Is there a student discount for this service?"),
-#         AIMessage(content="Is there a student discount for this service?"),
-#         HumanMessage(content="カスタマ"),
-#         AIMessage(content="カスタマーサポートに問い合わせる方法は？"),
-#         HumanMessage(content=query),
-#     ]
-#     return chatGroq.invoke(prompt).content
+# # from langchain_groq import ChatGroq
+# # chatGroq = ChatGroq(
+# #     temperature=0,
+# #     model="llama3-70b-8192"
+# # )
+# # @app.get("/complete/")
+# # def complete(query: str):
+# #     prompt = [
+# #         SystemMessage(content="Complete user questions. If the question is already complete, output the question as is."),
+# #         HumanMessage(content="この製品は無"),
+# #         AIMessage(content="この製品は無料ですか？"),
+# #         HumanMessage(content="How much"),
+# #         AIMessage(content="How much does this product cost?"),
+# #         HumanMessage(content="Is there a student discount for this service?"),
+# #         AIMessage(content="Is there a student discount for this service?"),
+# #         HumanMessage(content="カスタマ"),
+# #         AIMessage(content="カスタマーサポートに問い合わせる方法は？"),
+# #         HumanMessage(content=query),
+# #     ]
+# #     return chatGroq.invoke(prompt).content
 
-if __name__ == "__main__":
-    uvicorn.run(app)
+# if __name__ == "__main__":
+#     uvicorn.run(app)
