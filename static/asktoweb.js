@@ -679,6 +679,7 @@ var DESIGN_PRIMARY_COLOR = "$PRIMARY_COLOR$";
 var DESIGN_LIGHTER_PRIMARY_COLOR = "$LIGHTER_PRIMARY_COLOR$";
 var DESIGN_SECONDARY_COLOR = "$SECONDARY_COLOR$";
 var DESIGN_ACSENT_CHARACTER = "$ACSENT_CHARACTER$";
+var SUPPORT_LINK = "$SUPPORT_LINK$";
 
 //set default value
 if (DESIGN_PRIMARY_COLOR.includes("$")){DESIGN_PRIMARY_COLOR = "black";}
@@ -711,7 +712,6 @@ if(location.hostname === "localhost" || location.protocol === "file:"){
 // const API_URL="https://api.asktoweb.com";
 // const API_URL = "http://127.0.0.1:8000";
 
-const SUPPORT_LINK="https://asktoweb.com/support";
 const NAMESPACE ="$site_id$";
 function generateRandomID() {
   let randomID = "";
