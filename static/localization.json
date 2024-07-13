@@ -15,6 +15,7 @@
             "reference":"Referenced pages",
             "support":"Contact support"
         },
+        "suggestion":"Quick Search",
         "system": {
             "error": "Something get wrong. Please try again.",
             "reset": "Context deleted",
@@ -76,6 +77,7 @@
             "reference":"参考页面",
             "support":"联系支持"
         },
+        "suggestion":"快速搜索",
         "system": {
             "error": "出现错误。请重试。",
             "reset": "上下文已删除",
@@ -106,6 +108,7 @@
             "reference":"संदर्भ पृष्ठ",
             "support":"समर्थन से संपर्क करें"
         },
+        "suggestion":"त्वरित खोज",
         "system": {
             "error": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
             "reset": "संदर्भ हटाया गया",
@@ -136,6 +139,7 @@
             "reference":"Páginas de referencia",
             "support":"Contactar soporte"
         },
+        "suggestion":"Búsqueda rápida",
         "system": {
             "error": "Algo salió mal. Por favor, inténtelo de nuevo.",
             "reset": "Contexto eliminado",
@@ -166,6 +170,7 @@
             "reference":"Pages de référence",
             "support":"Contacter le support"
         },
+        "suggestion":"Recherche rapide",
         "system": {
             "error": "Un problème est survenu. Veuillez réessayer.",
             "reset": "Contexte supprimé",
@@ -196,6 +201,7 @@
             "reference":"Páginas de referência",
             "support":"Contatar suporte"
         },
+        "suggestion":"Pesquisa rápida",
         "system": {
             "error": "Algo deu errado. Por favor, tente novamente.",
             "reset": "Contexto excluído",
@@ -226,6 +232,7 @@
             "reference":"Pagine di riferimento",
             "support":"Contattare il supporto"
         },
+        "suggestion":"Ricerca rapida",
         "system": {
             "error": "Qualcosa è andato storto. Per favore riprova.",
             "reset": "Contesto eliminato",
@@ -256,6 +263,7 @@
             "reference":"Ссылочные страницы",
             "support":"Связаться с поддержкой"
         },
+        "suggestion":"Быстрый поиск",
         "system": {
             "error": "Что-то пошло не так. Пожалуйста, попробуйте еще раз.",
             "reset": "Контекст удален",
@@ -286,6 +294,7 @@
             "reference":"Referenzierte Seiten",
             "support":"Support kontaktieren"
         },
+        "suggestion":"Schnellsuche",
         "system": {
             "error": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
             "reset": "Kontext gelöscht",
@@ -316,6 +325,7 @@
             "reference":"Referans sayfalar",
             "support":"Destek ile iletişime geçin"
         },
+        "suggestion":"Hızlı Arama",
         "system": {
             "error": "Bir şeyler yanlış gitti. Lütfen tekrar deneyin.",
             "reset": "Bağlam silindi",
@@ -346,6 +356,7 @@
             "reference":"الصفحات المرجعية",
             "support":"الاتصال بالدعم"
         },
+        "suggestion":"بحث سريع",
         "system": {
             "error": "حدث خطأ. يرجى المحاولة مرة أخرى.",
             "reset": "تم حذف السياق",
@@ -358,6 +369,130 @@
             "3":"سيتم الانتهاء قريبًا",
             "4":"ما هو السؤال الصعب!🙄",
             "5":"هذه المرة الأولى التي تستغرق فيها كل هذا الوقت😮"
+        }
+    },
+    "ko": {
+        "title": "검색 도우미",
+        "tooltip": {
+            "ready": "AI 지원 준비 완료",
+            "reset": "대화 재설정",
+            "send": "보내기",
+            "close": "닫기",
+            "link":"새 탭에서 열기"
+        },
+        "message": {
+            "hello": "저희 웹사이트를 방문해 주셔서 감사합니다. 귀하의 질문에 대한 관련 페이지를 찾겠습니다.",
+            "error": "서버에 연결할 수 없습니다.<br>질문에 답변할 수 없어 죄송합니다.",
+            "reset": "대화를 재설정했습니다. 무엇이든 물어보세요.",
+            "reference":"참조 페이지",
+            "support":"지원 연락처"
+        },
+        "suggestion":"빠른 검색",
+        "system": {
+            "error": "문제가 발생했습니다. 다시 시도해 주세요.",
+            "reset": "컨텍스트 삭제됨",
+            "loading":"데이터 로드 중. 잠시만 기다려주세요.."
+        },
+        "placeholder": "여기에 질문을 입력하세요..",
+        "loading":{
+            "1":"답변에 필요한 정보 검색 중",
+            "2":"정보 정리 중",
+            "3":"곧 완료될 예정입니다",
+            "4":"어려운 질문이네요!🙄",
+            "5":"이렇게 오래 걸린 것은 처음입니다😮"
+        }
+    },
+    "vi": {
+        "title": "Trợ lý Tìm kiếm",
+        "tooltip": {
+            "ready": "Hỗ trợ AI đã sẵn sàng",
+            "reset": "Đặt lại cuộc trò chuyện",
+            "send": "Gửi",
+            "close": "Đóng",
+            "link":"Mở trong tab mới"
+        },
+        "message": {
+            "hello": "Cảm ơn bạn đã ghé thăm trang web của chúng tôi. Tôi sẽ tìm trang liên quan đến câu hỏi của bạn.",
+            "error": "Không thể kết nối với máy chủ.<br>Xin lỗi vì không thể trả lời câu hỏi của bạn.",
+            "reset": "Tôi đã đặt lại cuộc trò chuyện. Hãy hỏi tôi bất cứ điều gì.",
+            "reference":"Trang tham khảo",
+            "support":"Liên hệ hỗ trợ"
+        },
+        "suggestion":"Tìm kiếm nhanh",
+        "system": {
+            "error": "Đã xảy ra lỗi. Vui lòng thử lại.",
+            "reset": "Ngữ cảnh đã bị xóa",
+            "loading":"Đang tải dữ liệu. Vui lòng chờ.."
+        },
+        "placeholder": "Nhập câu hỏi của bạn ở đây..",
+        "loading":{
+            "1":"Tìm kiếm thông tin để trả lời",
+            "2":"Tổ chức thông tin",
+            "3":"Sẽ hoàn thành sớm",
+            "4":"Câu hỏi khó khăn quá!🙄",
+            "5":"Đây là lần đầu tiên mà nó mất thời gian lâu như vậy😮"
+        }
+    },
+    "id": {
+        "title": "Asisten Pencarian",
+        "tooltip": {
+            "ready": "Dukungan AI Siap",
+            "reset": "Atur Ulang Percakapan",
+            "send": "Kirim",
+            "close": "Tutup",
+            "link":"Buka di tab baru"
+        },
+        "message": {
+            "hello": "Terima kasih telah mengunjungi situs web kami. Saya akan menemukan halaman yang relevan dengan pertanyaan Anda.",
+            "error": "Tidak dapat terhubung ke server.<br>Mohon maaf tidak dapat menjawab pertanyaan Anda.",
+            "reset": "Saya telah mengatur ulang percakapan. Silakan tanyakan apa saja.",
+            "reference":"Halaman Referensi",
+            "support":"Hubungi dukungan"
+        },
+        "suggestion":"Pencarian Cepat",
+        "system": {
+            "error": "Ada yang salah. Silakan coba lagi.",
+            "reset": "Konteks dihapus",
+            "loading":"Memuat data. Harap tunggu.."
+        },
+        "placeholder": "Ketik pertanyaan Anda di sini..",
+        "loading":{
+            "1":"Mencari informasi untuk menjawab",
+            "2":"Mengorganisir informasi",
+            "3":"Akan segera selesai",
+            "4":"Apa pertanyaan yang sulit!🙄",
+            "5":"Ini pertama kalinya memakan waktu lama😮"
+        }
+    },
+    "ms": {
+        "title": "Pembantu Carian",
+        "tooltip": {
+            "ready": "Sokongan AI Sedia",
+            "reset": "Tetapkan semula Perbualan",
+            "send": "Hantar",
+            "close": "Tutup",
+            "link":"Buka dalam tab baru"
+        },
+        "message": {
+            "hello": "Terima kasih kerana melawat laman web kami. Saya akan mencari halaman yang berkaitan dengan soalan anda.",
+            "error": "Tidak dapat menyambung ke pelayan.<br>Mohon maaf kerana tidak dapat menjawab soalan anda.",
+            "reset": "Saya telah menetapkan semula perbualan. Sila tanya saya apa-apa.",
+            "reference":"Halaman Rujukan",
+            "support":"Hubungi sokongan"
+        },
+        "suggestion":"Carian Pantas",
+        "system": {
+            "error": "Ada yang tidak kena. Sila cuba lagi.",
+            "reset": "Konteks dipadamkan",
+            "loading":"Memuatkan data. Sila tunggu.."
+        },
+        "placeholder": "Taip soalan anda di sini..",
+        "loading":{
+            "1":"Mencari maklumat untuk menjawab",
+            "2":"Mengatur maklumat",
+            "3":"Akan siap tidak lama lagi",
+            "4":"Apa soalan yang sukar!🙄",
+            "5":"Ini kali pertama ia mengambil masa lama😮"
         }
     }
 }
