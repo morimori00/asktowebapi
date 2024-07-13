@@ -222,21 +222,25 @@ def chat_history_encode(chat_history):
 def resize_chat_history(chat_history):
     while len(tokenizer.encode(str(chat_history)))>500:
             chat_history.pop(0)
+            chat_history.pop(0)
     return chat_history
 
-def save_chat_history(chat_history_list, session_id):
+def save_chat_history(chat_history_list, session_id,website):
     jsondata=json.dumps(chat_history_list)
     # Save the chat history to a json file
-    database.upsert({"id":session_id,"content":jsondata}).execute()
+    database.upsert({"id":session_id,"content":jsondata,"site_id":website}).execute()
 
 def load_chat_history(session_id):
     # Load the chat history from a json file
-    data=database.select("*").eq("id",session_id).execute()
-    if len(data.data)==0:
+    try:
+        data=database.select("*").eq("id",session_id).execute()
+        if len(data.data)==0:
+            return [[],""]
+        jsondata = data.data[0]["content"]
+        date=data.data[0]["created_at"]
+        return [json.loads(jsondata) , date]
+    except:
         return [[],""]
-    jsondata = data.data[0]["content"]
-    date=data.data[0]["created_at"]
-    return [json.loads(jsondata) , date]
 
 def printme(input):
     print(input)
@@ -372,7 +376,7 @@ async def Askme(query,chat_history,website,sesstionId):
         chat_history.extend([{"type":"human","content":query},{"type":"ai","content":assistant_answer}])
     else:
         chat_history.extend([{"type":"human","content":query}, {"type":"ai","content":assistant_answer}, {"type":"references","content":"$".join(referenced_links)}])
-    save_chat_history(chat_history, sesstionId)
+    save_chat_history(chat_history, sesstionId,website)
     yield "data: {\"end\": true}\n\n"
 
 @app.get("/")
@@ -405,15 +409,6 @@ def stream(body: StreamRequest):
 def gethistory(sesstionId: str):
     chat_history  = load_chat_history(sesstionId)
     return {"chat_history": chat_history[0], "date": chat_history[1]}
-
-@app.post("/resethistory")
-def resethistory(sesstionId: str):
-    chat_history= load_chat_history(sesstionId)[0]
-    if chat_history==[]:
-        return {"chat_history": []}
-    chat_history = []
-    save_chat_history(chat_history, sesstionId)
-    return {"chat_history": chat_history}
 
 @app.get("/querypages")
 def querypages(query: str, website: str):
