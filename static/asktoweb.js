@@ -61,6 +61,7 @@ ASKTOWEB_ASSISTANT_DOM =
 @import url("https://fonts.googleapis.com/css?family=Red+Hat+Display:400,500,900&display=swap");
 *{
 --primary-color: %DESIGN_PRIMARY_COLOR%;
+--lighter-primary-color: %DESIGN_LIGHTER_PRIMARY_COLOR%;
 --secondary-color: %DESIGN_SECONDARY_COLOR%;
 }
 .ask-to-website {
@@ -220,7 +221,7 @@ ASKTOWEB_ASSISTANT_DOM =
   z-index: 2;
   box-sizing: border-box;
   border-radius: 16.0px;
-  background: white;
+  background: var(--lighter-primary-color);
   box-shadow: 0 0 128.0px 0 rgba(0, 0, 0, 0.1), 0.0px 32.0px 64.0px -48.0px rgba(0, 0, 0, 0.5);
 }
 .ask-to-website-chat .contact.bar {
@@ -436,7 +437,7 @@ ASKTOWEB_ASSISTANT_DOM =
   display: flex;
   align-items: center;
   padding: 0 8.0px;
-  background: white;
+  background: var(--lighter-primary-color);
   width: 100%;
     justify-content: space-between;
     gap: 5px;
@@ -674,9 +675,16 @@ var ICON={
   "search":`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>`
 };
 
-var DESIGN_PRIMARY_COLOR = "black";
-var DESIGN_SECONDARY_COLOR = "#fff";
-var DESIGN_ACSENT_CHARACTER = "A";
+var DESIGN_PRIMARY_COLOR = "$PRIMARY_COLOR$";
+var DESIGN_LIGHTER_PRIMARY_COLOR = "$LIGHTER_PRIMARY_COLOR$";
+var DESIGN_SECONDARY_COLOR = "$SECONDARY_COLOR$";
+var DESIGN_ACSENT_CHARACTER = "$ACSENT_CHARACTER$";
+
+//set default value
+if (DESIGN_PRIMARY_COLOR.includes("$")){DESIGN_PRIMARY_COLOR = "black";}
+if (DESIGN_LIGHTER_PRIMARY_COLOR.includes("$")){DESIGN_LIGHTER_PRIMARY_COLOR = "#fff";}
+if (DESIGN_SECONDARY_COLOR.includes("$")){DESIGN_SECONDARY_COLOR = "#fff";}
+if (DESIGN_ACSENT_CHARACTER.includes("$")){DESIGN_ACSENT_CHARACTER = " A";}
 
 var USER_LANGUAGE = navigator.language || navigator.userLanguage;
 USER_LANGUAGE = USER_LANGUAGE.substring(0, 2);
@@ -704,7 +712,7 @@ if(location.hostname === "localhost" || location.protocol === "file:"){
 // const API_URL = "http://127.0.0.1:8000";
 
 const SUPPORT_LINK="https://asktoweb.com/support";
-const NAMESPACE ="fulldepth";
+const NAMESPACE ="$site_id$";
 function generateRandomID() {
   let randomID = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -1219,7 +1227,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("AssistantBtn created");
   container= document.createElement("div");
   shadowRoot = container.attachShadow({mode: 'closed'});
-  shadowRoot.innerHTML = ASKTOWEB_ASSISTANT_DOM.replace("%DESIGN_PRIMARY_COLOR%",DESIGN_PRIMARY_COLOR).replace("%DESIGN_SECONDARY_COLOR%",DESIGN_SECONDARY_COLOR).replace("%DESIGN_ACSENT_CHARACTER%",DESIGN_ACSENT_CHARACTER);
+  shadowRoot.innerHTML = 
+  ASKTOWEB_ASSISTANT_DOM
+  .replace("%DESIGN_PRIMARY_COLOR%",DESIGN_PRIMARY_COLOR)
+  .replace("%DESIGN_SECONDARY_COLOR%",DESIGN_SECONDARY_COLOR)
+  .replace("%DESIGN_ACSENT_CHARACTER%",DESIGN_ACSENT_CHARACTER)
+  .replace("%DESIGN_LIGHTER_PRIMARY_COLOR%",DESIGN_LIGHTER_PRIMARY_COLOR);
   document.body.appendChild(container);
   var script = document.createElement('script');
   script.src = API_URL + "/static/marked.min.js";

@@ -737,5 +737,42 @@ def complete(query: str):
     ]
     return chatGroq.invoke(prompt).content
 
+
+from uuid import UUID
+@app.get("/cdn")
+async def get_dynamic_js(id: str):
+    # staticディレクトリ内のasktoweb.jsファイルのパスを取得
+    #asktowebのID: 9b558d8a-ce80-4edf-9694-8bcc2dbe846f
+    js_path = os.path.join("static", "asktoweb.js")
+    
+    # ファイルが存在するか確認
+    if not os.path.exists(js_path):
+        raise HTTPException(status_code=404, detail="JavaScript file not found")
+    
+    # ファイルを読み込む
+    with open(js_path, "r") as file:
+        js_content = file.read()
+    
+    # Supabaseからデータを取得
+    print(id)
+    response = supabase.table("site_settings").select("*").eq("site_id", id).execute()
+    
+    # JavaScriptを編集
+    #replace the $site_it$ with the actual site_id
+    js_content = js_content.replace("$site_id$", id)
+
+    for config in response.data:
+        print(config["setting_value"])
+        for key,value in config["setting_value"].items():
+            js_content = js_content.replace(f"${key}$", value)
+    
+    # レスポンスを作成
+    response = Response(content=js_content, media_type="application/javascript")
+    
+    # Content-Dispositionヘッダーを設定
+    response.headers["Content-Disposition"] = 'inline; filename="asktoweb.js"'
+    
+    return response
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
