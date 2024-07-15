@@ -1105,7 +1105,7 @@ class ASKTOWEB_ASSISTANT {
     //   return atag     // 置換するリンクを生成
     // });
     //参照フォーマット(["text"@N,@N2,@N3])に対応
-    contentHTML=contentHTML.replace(/\[.*?\]/g, (match) => {
+    contentHTML=contentHTML.replace(/\[[\s\S]*\]/g, (match) => {
       // マッチした部分から[]を取り除く
       let content = match.slice(1, -1);
       let p1,p2;
@@ -1120,7 +1120,7 @@ class ASKTOWEB_ASSISTANT {
       }
       const ref=references[p2-1];
       const hilighttexturl=ref["source"].split("#:~:text=")[0]+"#:~:text="+p1;
-      const url = replaceHighlightLink(hilighttexturl, contentHTML.replace(/\[.*?\]/g, ''));  // URL を取得
+      const url = replaceHighlightLink(hilighttexturl, contentHTML.replace(/\[[\s\S]*\]/g, ''));  // URL を取得
       const atag= `<a href="${url}" target="_blank" data-tootik="${toolkit}" data-tootik-conf="no-arrow shadow delay" onmouseover="referenceHover('${ref['source']}',true)" onmouseout="referenceHover('${ref['source']}',false)" >${p1}[${p2}]</a>`;
       return atag     // 置換するリンクを生成
     });
