@@ -762,7 +762,7 @@ function references_to_dom(references ,answer) {
       return;
     }
     data = element;
-    console.log(data);
+    console.debug(data);
     dom += `
     <a class="source-link" href="${replaceHighlightLink(data["source"],answer)}" data-reference="${data["source"]}" rel=”noopener” target="_blank" data-tootik="${toolkit}" id="ask-to-web-tooltip" data-tootik-conf="no-arrow shadow delay">
           <div style="background-image:url('https://www.google.com/s2/favicons?domain=${data["source"]}');" class="source-fav"></div>
@@ -845,7 +845,7 @@ class ASKTOWEB_ASSISTANT {
       }
     })
     this.postbtn.addEventListener("click", this.postit.bind(this)); // Bind the function to the class instance
-    console.log("AssistantBtn created" + this.openflg);
+    console.debug("AssistantBtn created" + this.openflg);
     setTimeout(() => {
     if(localStorage.getItem("DIKSAR")=="open"){
       this.btn.click();
@@ -860,7 +860,7 @@ class ASKTOWEB_ASSISTANT {
     this.postbtn.innerHTML = ICON.spiner;
     this.postbtn.disabled = true;
     this.resetbtn.disabled = true;
-    console.log("sended" + text);
+    console.debug("sended" + text);
     this.asktowebtextarea.value = "";
     this.humanmessage(text);
     this.addloader();
@@ -892,7 +892,7 @@ class ASKTOWEB_ASSISTANT {
       }else{
         this.suggestion.style.paddingBottom = "0";
       }
-      console.log(data);
+      console.debug(data);
     })
     .catch(error => {
       console.error(error);
@@ -920,7 +920,7 @@ class ASKTOWEB_ASSISTANT {
           }
           return;
         }
-        console.log(data[0].url);
+        console.debug(data[0].url);
         this.suggestion.style.display = "flex";
         this.suggestion.querySelector(".suggestion").innerHTML = "";
         for (let i = 0; i < data.length; i++) {
@@ -959,7 +959,7 @@ class ASKTOWEB_ASSISTANT {
       .then(response => response.json())
       .then(data => {
         // Handle the response data here
-        // console.log(data["chat_history"]);
+        // console.debug(data["chat_history"]);
         this.resetbtn.disabled = false;
         this.postbtn.disabled = false;
         this.chat.innerHTML = "";
@@ -978,7 +978,7 @@ class ASKTOWEB_ASSISTANT {
           return;
         }
         const formated_date = data["date"].split("T")[0] + " " + data["date"].split("T")[1].split(".")[0].substring(0, 5);
-        console.log(formated_date);
+        console.debug(formated_date);
         this.systemmessage(formated_date);
         this.aimessage(l("message.hello"));
         data["chat_history"].forEach(element => {
@@ -1045,7 +1045,7 @@ class ASKTOWEB_ASSISTANT {
   currentaimessage;
   streamingflg = false;
   streamingaimessage(text) {
-    console.log("streaming:"+text);
+    console.debug("streaming:"+text);
     if (this.streamingflg) {
       this.currentaimessage.innerHTML = text;
     } else {
@@ -1146,7 +1146,7 @@ class ASKTOWEB_ASSISTANT {
     }, 7000);
   }
   verify(verify_result){
-    console.log("verify"+verify_result);
+    console.debug("verify"+verify_result);
     this.currentaimessage.classList.remove("verifying");
     if(verify_result.toString().includes("ok")){
         
@@ -1208,7 +1208,7 @@ async function fetchJsonData() {
     // Parse the response as JSON
     const data = await response.json();
     // Log the JSON data
-    // console.log(data["en"]);
+    // console.debug(data["en"]);
     return data;
 
     // You can process the JSON data here
@@ -1221,10 +1221,10 @@ async function fetchJsonData() {
 
 var LOCARIZATION = {};
 var shadowRoot;
-//After Website loaded, Create new Div element from text and append it to the body
-document.addEventListener("DOMContentLoaded", async function () {
+
+async function ONLOAD(){
   //append it to the body
-  console.log("AssistantBtn created");
+  console.debug("AssistantBtn created");
   container= document.createElement("div");
   shadowRoot = container.attachShadow({mode: 'closed'});
   shadowRoot.innerHTML = 
@@ -1240,7 +1240,20 @@ document.addEventListener("DOMContentLoaded", async function () {
   // document.body.innerHTML += ASKTOWEB_ASSISTANT_DOM;
   LOCARIZATION = await fetchJsonData();
   asktoweb = new ASKTOWEB_ASSISTANT();
+  
+}
+if (document.readyState === "loading") {
+  // Loading hasn't finished yet
+//After Website loaded, Create new Div element from text and append it to the body
+document.addEventListener("DOMContentLoaded", async function () {
+  ONLOAD();
 });
+} else {
+  // `DOMContentLoaded` has already fired
+  ONLOAD();
+}
+
+
 const l = (key) => {
   data = LOCARIZATION[USER_LANGUAGE];
   key = key.split(".")
@@ -1273,7 +1286,7 @@ async function FetchAPI(query, myaimessage, fn, errormessage,verifyfn) {
 
       return reader.read().then(function processText({ done, value }) {
         if (done) {
-          //console.log("Stream ended.");
+          //console.debug("Stream ended.");
           return;
         }
         buffer += decoder.decode(value, { stream: true });
@@ -1285,13 +1298,13 @@ async function FetchAPI(query, myaimessage, fn, errormessage,verifyfn) {
           if (event.trim() === "") continue;
           const data = JSON.parse(event.replace("data: ", ""));
           if (data.preend) {
-            //console.log("Stream ended.");
+            //console.debug("Stream ended.");
             //ADD RFERENCE MESSGAGE
             fn(references);
           }else if(data.end) {
             return;
           } else {
-            console.log(`Received: ${data.value}`);
+            console.debug(`Received: ${data.value}`);
             if (data.type == "text") {
               markdown=marked.parse(data.value);
               myaimessage(replaceSupportLink(markdown));
